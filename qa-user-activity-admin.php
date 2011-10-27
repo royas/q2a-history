@@ -19,29 +19,71 @@
 					return 'Recent Activity';
 				case 'user_act_list_age':
 					return 30;
-					
-				case 'user_act_list_u_password':
-					return 'set password';
-				case 'user_act_list_u_reset':
-					return 'reset password';
-				case 'user_act_list_u_save':
-					return 'edited profile';
-				case 'user_act_list_u_confirmed':
-					return 'confirmed email';
-				case 'user_act_list_u_edit':
-					return 'profile edited';
-				case 'user_act_list_u_level':
-					return 'level changed';
-				case 'user_act_list_u_block':
-					return 'blocked';
-				case 'user_act_list_u_unblock':
-					return 'unblocked';
-				case 'user_act_list_feedback':
-					return 'sent feedback';
-				case 'user_act_list_search':
-					return 'searched';
-				case 'user_act_list_u_register':
-					return 'registered';
+
+				case 'user_act_list_hide':
+					return 'in_u_block
+in_u_edit
+in_u_unblock';
+
+				case 'user_act_list_show':
+					return 'q_post
+a_post
+c_post';
+
+
+				case 'user_act_list_css':
+					return '.qa-activity-item-table{
+	width:100%;
+	min-width:500px;
+}
+.qa-activity-item-type-cell{
+	width:35%;
+}
+
+.qa-activity-item-title-cell{
+	width:45%;
+}
+
+.qa-activity-item-points-cell{
+	width:20%;
+}
+
+.qa-activity-item-date {
+	background-color: #EEEEEE;
+	color: #999999;
+	float: left;
+	font: bold 10px Verdana,Sans-Serif;
+	letter-spacing: 0;
+	padding: 6px 10px;
+	text-align: center;
+	white-space: normal;
+	width: 45px;
+}
+.qa-activity-item-date-no {
+	font-size:150%;
+}
+.qa-activity-item-type {
+    font-weight: bold;
+    padding: 3px;
+}
+.qa-activity-item-title a{
+    color: #555555 !important;
+    font-weight: bold;
+}
+.qa-activity-item-points {
+	font-weight: bold;
+	font-family: sans-serif;
+	padding: 10px;
+}
+.qa-activity-item-points-neg {
+	color: Maroon;
+}
+.qa-activity-item-points-pos {
+	color: Green;
+}
+';
+
+			// descriptions
 
 				case 'user_act_list_q_post':
 					return 'posted a question';
@@ -152,51 +194,45 @@
 				case 'user_act_list_a_vote_nil':
 					return 'unvoted an answer';
 
-			case 'user_act_list_css':
-				return '.qa-activity-item-table{
-	width:100%;
-	min-width:500px;
-}
-.qa-activity-item-table td{
-	width:33%;
-}
+					
+				case 'user_act_list_u_password':
+					return 'set password';
+				case 'user_act_list_u_reset':
+					return 'reset password';
+				case 'user_act_list_u_save':
+					return 'edited profile';
+				case 'user_act_list_u_confirmed':
+					return 'confirmed email';
+				case 'user_act_list_u_edit':
+					return 'edited profile of';
+				case 'user_act_list_u_level':
+					return 'changed level of';
+				case 'user_act_list_u_block':
+					return 'blocked user';
+				case 'user_act_list_u_unblock':
+					return 'unblocked user';
+					
+				case 'user_act_list_in_u_edit':
+					return 'profile edited';
+				case 'user_act_list_in_u_level':
+					return 'level changed to:';
+				case 'user_act_list_in_u_block':
+					return 'blocked';
+				case 'user_act_list_in_u_unblock':
+					return 'unblocked';
+					
+				case 'user_act_list_feedback':
+					return 'sent feedback';
+				case 'user_act_list_search':
+					return 'searched for:';
+				case 'user_act_list_u_register':
+					return 'registered';
 
-.qa-activity-item-date {
-	background-color: #EEEEEE;
-	color: #999999;
-	float: left;
-	font: bold 10px Verdana,Sans-Serif;
-	letter-spacing: 0;
-	padding: 6px 10px;
-	text-align: center;
-	white-space: normal;
-	width: 45px;
-}
-.qa-activity-item-date-no {
-	font-size:150%;
-}
-.qa-activity-item-type {
-    font-weight: bold;
-    padding: 3px;
-}
-.qa-activity-item-title a{
-    color: #555555 !important;
-    font-weight: bold;
-}
-.qa-activity-item-points-pos, .qa-activity-item-points-neg {
-	font-weight: bold;
-	font-family: sans-serif;
-	padding: 10px;
-}
-.qa-activity-item-points-neg {
-	color: Maroon;
-}
-.qa-activity-item-points-pos {
-	color: Green;
-}
-';
-			default:
-				return null;
+
+
+			
+				default:
+					return null;
 			}
 
 		}
@@ -274,6 +310,11 @@
 				'u_level',
 				'u_block',
 				'u_unblock',
+				'in_u_edit',
+				'in_u_level',
+				'in_u_block',
+				'in_u_unblock',
+
 				'feedback',
 				'search',
 				'u_register',
@@ -295,6 +336,9 @@
 					qa_opt('user_act_list_css',qa_post_text('user_act_list_css'));
 					qa_opt('user_act_list_title',qa_post_text('user_act_list_title'));
 					qa_opt('user_act_list_age',(int)qa_post_text('user_act_list_age'));
+					
+					qa_opt('user_act_list_show',qa_post_text('user_act_list_show'));
+					qa_opt('user_act_list_hide',qa_post_text('user_act_list_hide'));
 					
 					foreach($field_names as $field) {
 						qa_opt('user_act_list_'.$field,qa_post_text('user_act_list_'.$field));
@@ -341,6 +385,24 @@
 				'tags' => 'NAME="user_act_list_age"',
 				'value' => qa_opt('user_act_list_age'),
 				'type' => 'number',
+			);
+			
+			$fields[] = array(
+				'label' => 'Activity types to hide from profile owner',
+				'tags' => 'NAME="user_act_list_hide"',
+				'value' => qa_opt('user_act_list_hide'),
+				'type' => 'textarea',
+				'note' => 'one per line, use event names (q_post, etc.) below',
+				'rows' => 20
+			);
+			
+			$fields[] = array(
+				'label' => 'Activity types to show to public',
+				'tags' => 'NAME="user_act_list_show"',
+				'value' => qa_opt('user_act_list_show'),
+				'type' => 'textarea',
+				'note' => 'one per line, use event names (q_post, etc.) below',
+				'rows' => 20
 			);
 			
 			$fields[] = array(

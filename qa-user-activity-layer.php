@@ -66,7 +66,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 
 	function main_parts($content)
 	{
-		if($this->template == 'user') {
+		if($this->template == 'user' && qa_opt('event_logger_to_database') && qa_opt('user_act_list_active')) {
 
 			if($content['q_list']) {  // paranoia
 			
@@ -95,13 +95,32 @@ class qa_html_theme_layer extends qa_html_theme_base
 		$handle = $this->_user_handle();
 		if(!$handle) return;
 		$userid = $this->getuserfromhandle($handle);
-		if($userid != qa_get_logged_in_userid() && qa_get_logged_in_level()<QA_USER_LEVEL_ADMIN) return;
 		
 		$events = qa_db_query_sub(
 			'SELECT event, params, UNIX_TIMESTAMP(datetime) AS datetime FROM ^eventlog WHERE userid = # AND DATE_SUB(CURDATE(),INTERVAL # DAY) <= datetime ORDER BY datetime DESC',
 			$userid, qa_opt('user_act_list_age')
 		);
 
+		// no post
+		
+		$nopost = array(
+			'u_password',
+			'u_reset',
+			'u_save',
+			'u_confirmed',
+			'u_edit',
+			'u_level',
+			'u_block',
+			'u_unblock',
+			'u_register',
+			'in_u_edit',
+			'in_u_level',
+			'in_u_block',
+			'in_u_unblock',
+			'feedback',
+			'search',
+		);
+		
 		// points
 
 		require_once QA_INCLUDE_DIR.'qa-db-points.php';
@@ -128,15 +147,47 @@ class qa_html_theme_layer extends qa_html_theme_base
 		
 		while ( ($event=qa_db_read_one_assoc($events,true)) !== null ) {
 			$type = $event['event'];
+			
+			// hide / show exceptions
+			
+			if(qa_get_logged_in_level()<QA_USER_LEVEL_ADMIN) {
+				if($userid != qa_get_logged_in_userid()) { // show public
+					$types = explode("\n",qa_opt('user_act_list_show'));
+					if(!in_array($type,$types))
+						continue;
+				}
+				else { // hide from owner
+					$types = explode("\n",qa_opt('user_act_list_hide'));
+					if(in_array($type,$types))
+						continue;
+				}
+			}
 
+			
 			if(!qa_opt('user_act_list_'.$type)) continue;
-
+			
+			$params = array();
+			
 			$paramsa = explode("\t",$event['params']);
 			foreach($paramsa as $param) {
 				$parama = explode('=',$param);
 				$params[$parama[0]]=$parama[1];
+				if($type=='in_q_vote_up') qa_error_log($params);
 			}
-			if(strpos($event['event'],'q_') !== 0 && strpos($event['event'],'in_q_') !== 0) {
+			
+			if(in_array($type, $nopost)) {
+				if($type == 'search') {
+					if((int)$params['start'] != 0)
+						continue;
+					$link = '<a href="'.qa_path_html('search', array('q'=>$params['query'])).'">'.$params['query'].'</a>';
+				}
+				else if(in_array($type, array('u_edit','u_level','u_block','u_unblock'))) {
+					$ohandle = $this->getHandleFromID($params['userid']);
+					$link = '<a href="'.qa_path('user/'.$ohandle, null, qa_opt('site_url')).'">'.$ohandle.'</a>';
+				}
+				else($link = '');
+			}
+			else if(strpos($event['event'],'q_') !== 0 && strpos($event['event'],'in_q_') !== 0) { // comment or answer
 				$pid = qa_db_read_one_value(
 					qa_db_query_sub(
 						'SELECT parentid FROM ^posts WHERE postid=#',
@@ -156,6 +207,16 @@ class qa_html_theme_layer extends qa_html_theme_base
 				$link = '<a href="'.$activity_url.'">'.$parent['title'].'</a>';
 			}
 			else {
+
+				if(!isset($params['title'])) {
+					$params['title'] = qa_db_read_one_value(
+						qa_db_query_sub(
+							'SELECT title FROM ^posts WHERE postid=#',
+							$params['postid']
+						)
+					);
+				}
+
 				$activity_url = qa_path_html(qa_q_request($params['postid'], $params['title']), null, qa_opt('site_url'));
 				$link = '<a href="'.$activity_url.'">'.$params['title'].'</a>';
 			}
@@ -171,7 +232,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 			$fields[] = array(
 				'type' => 'static',
 				'label'=> '<div class="qa-activity-item-date">'.$when.'</div>',
-				'value'=> '<table class="qa-activity-item-table"><tr><td><div class="qa-activity-item-type">'.qa_opt('user_act_list_'.$type).'</div></td><td><div class="qa-activity-item-title">'.$link.'</div></td><td align="right">'.($points?'<div class="qa-activity-item-points-'.($points<0?'neg">':'pos">+').$points.'</div>':'').'</td></tr></table>',
+				'value'=> '<table class="qa-activity-item-table"><tr><td class="qa-activity-item-type-cell"><div class="qa-activity-item-type">'.qa_opt('user_act_list_'.$type).'</div></td><td class="qa-activity-item-title-cell"><div class="qa-activity-item-title">'.$link.'</div></td class="qa-activity-item-points-cell"><td align="right">'.($points?'<div class="qa-activity-item-points qa-activity-item-points-'.($points<0?'neg">':'pos">+').$points.'</div>':'').'</td></tr></table>',
 			);
 		}		
 		
@@ -210,5 +271,25 @@ class qa_html_theme_layer extends qa_html_theme_base
 		}
 		if (!isset($userid)) return;
 		return $userid;
+	}
+	function getHandleFromID($uid) {
+		require_once QA_INCLUDE_DIR.'qa-app-users.php';
+		
+		if (QA_FINAL_EXTERNAL_USERS) {
+			$publictouserid=qa_get_public_from_userids(array($uid));
+			$handle=@$publictouserid[$uid];
+			
+		} 
+		else {
+			$handle = qa_db_read_one_value(
+				qa_db_query_sub(
+					'SELECT handle FROM ^users WHERE userid = #',
+					$uid
+				),
+				true
+			);
+		}
+		if (!isset($handle)) return;
+		return $handle;
 	}
 }

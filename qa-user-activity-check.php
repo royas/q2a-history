@@ -8,7 +8,26 @@
 			
 			if(!qa_opt('event_logger_to_database')) return;
 			
-			$twoway = array('a_select','a_unselect', 'q_vote_up', 'a_vote_up', 'q_vote_down', 'a_vote_down', 'q_vote_nil', 'a_vote_nil', 'q_flag', 'a_flag', 'c_flag', 'q_unflag', 'a_unflag', 'c_unflag');
+			$twoway = array(
+				'a_select',
+				'a_unselect',
+				'q_vote_up',
+				'a_vote_up',
+				'q_vote_down',
+				'a_vote_down',
+				'q_vote_nil',
+				'a_vote_nil',
+				'q_flag',
+				'a_flag',
+				'c_flag',
+				'q_unflag',
+				'a_unflag',
+				'c_unflag',
+				'u_edit',
+				'u_level',
+				'u_block',
+				'u_unblock',
+			 );
 			//$undo = array('a_unselect', 'q_vote_nil', 'a_vote_nil','q_unflag', 'a_unflag', 'c_unflag');
 			
 			/*
@@ -52,22 +71,27 @@
 			*/
 			
 			if(in_array($event, $twoway)) {
-				$userid = qa_db_read_one_value(
-					qa_db_query_sub(
-						'SELECT userid FROM ^posts WHERE postid=#',
-						$params['postid']
-					),
-					true
-				);
+				
+				if(strpos($event,'u_') === 0) {
+					$userid = $params['userid'];
+				}
+				else {
+					$userid = qa_db_read_one_value(
+						qa_db_query_sub(
+							'SELECT userid FROM ^posts WHERE postid=#',
+							$params['postid']
+						),
+						true
+					);
+				}
 				
 				$handle = $this->getHandleFromId($userid);
 				$event = 'in_'.$event;
 				
 				$paramstring='';
 				
-				foreach ($params as $key => $value) {
+				foreach ($params as $key => $value)
 					$paramstring.=(strlen($paramstring) ? "\t" : '').$key.'='.$this->value_to_text($value);
-				}
 				
 				qa_db_query_sub(
 					'INSERT INTO ^eventlog (datetime, ipaddress, userid, handle, cookieid, event, params) '.
