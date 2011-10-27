@@ -10,9 +10,11 @@ This is a plugin for **Question2Answer** that adds an activity/points history to
 Features
 --------
 - shows almost all events in list
+- shows incoming events (e.g. user's question voted on)
 - shows points gained and lost for each event if applicable.
 - option to replace old activity list 
 - set max age of events to show in admin/plugins
+- set event exceptions to hide from event user, and those to show to public via admin/plugins
 - css configurable, all strings configurable via admin/plugins
 
 ------------
