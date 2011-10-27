@@ -30,6 +30,6 @@ if ( !defined('QA_VERSION') )
 	exit;
 }
 
-qa_register_plugin_layer('qa-user-activity-layer.php', 'User Activity Layer');
-qa_register_plugin_module('event', 'qa-user-activity-check.php','user_activity_check','History Check');
-qa_register_plugin_module('module', 'qa-user-activity-admin.php','user_activity_admin','History Admin');
+qa_register_plugin_layer('qa-history-layer.php', 'History Layer');
+qa_register_plugin_module('event', 'qa-history-check.php','history_check','History Check');
+qa_register_plugin_module('module', 'qa-history-admin.php','history_admin','History Admin');

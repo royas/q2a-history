@@ -1,6 +1,6 @@
 <?php
 
-	class user_activity_check {
+	class history_check {
 		
 // main event processing function
 		

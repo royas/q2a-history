@@ -1,5 +1,5 @@
 <?php
-    class user_activity_admin {
+    class history_admin {
 
 		function allow_template($template)
 		{
