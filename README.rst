@@ -23,8 +23,8 @@ Installation
 #. Get the source code for this plugin from github_, either using git_, or downloading directly:
 
    - To download using git, install git and then type 
-     ``git clone git://github.com/NoahY/q2a-history.git history``
-     at the command prompt (on Linux, Windows is a bit different)
+	 ``git clone git://github.com/NoahY/q2a-history.git history``
+	 at the command prompt (on Linux, Windows is a bit different)
    - To download directly, go to the `project page`_ and click **Download**
 
 #. extract the files to a subfolder such as ``history`` inside the ``qa-plugins`` folder of your Q2A installation.
@@ -57,24 +57,21 @@ http://www.question2answer.org/
 
 From User Activity Plus plugin:
 
-
--------------------------------------------------
-USER ACTIVITY PLUS
-Question2Answer plugin
--------------------------------------------------
+============================================
+USER ACTIVITY PLUS Question2Answer plugin
+============================================
 
 This is a page plugin for popular open source Q&A platform, Question2Answer <question2answer.org>. It adds the functionality to show every question and answer of a user.
 
 The posts list is paginated and uses the value set under Admin > Lists > Questions page length (default 20). Answers use a similar design to question lists but also shows a snippet of the answer. Both lists include the class `qa-a-count-selected` where applicable for appropriate styling of selected answers.
 
 
-
+--------------------------
 INSTALLATION & USAGE
--------------------------------------------------
+--------------------------
 
-1. Download and extract the files to a subfolder such as `user-activity-plus` inside the `qa-plugins` folder of your Q2A installation.
+#. Download and extract the files to a subfolder such as `user-activity-plus` inside the `qa-plugins` folder of your Q2A installation.
 
-2. Copy the styles from sample.css to your theme's stylesheet.
+#. Copy the styles from sample.css to your theme's stylesheet.
 
-3. Now on a user's profile are links to see all questions and answers of the user. They are show both in the activity stats table and below the "Recent Activity" question list.
-
+#. Now on a user's profile are links to see all questions and answers of the user. They are show both in the activity stats table and below the "Recent Activity" question list.
