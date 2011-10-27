@@ -31,5 +31,5 @@ if ( !defined('QA_VERSION') )
 }
 
 qa_register_plugin_layer('qa-user-activity-layer.php', 'User Activity Layer');
-qa_register_plugin_module('event', 'qa-user-activity-check.php','user_activity_check','Activity Check');
-qa_register_plugin_module('module', 'qa-user-activity-admin.php','user_activity_admin','Activity Admin');
+qa_register_plugin_module('event', 'qa-user-activity-check.php','user_activity_check','History Check');
+qa_register_plugin_module('module', 'qa-user-activity-admin.php','user_activity_admin','History Admin');
