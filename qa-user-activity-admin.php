@@ -165,7 +165,7 @@ c_post';
 				case 'user_act_list_a_select':
 					return 'selected a best answer';
 				case 'user_act_list_a_unselect':
-					return 'unselected best answer';
+					return 'deselected best answer';
 					
 				case 'user_act_list_in_a_select':
 					return 'answer selected as best';
