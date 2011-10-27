@@ -1,12 +1,12 @@
 <?php
 /*
-	Plugin Name: User Activity Plus
-	Plugin URI:
-	Plugin Description: Shows all questions and answers of a user
+	Plugin Name: Activity List
+	Plugin URI: https://github.com/NoahY/q2a-admin-plus
+	Plugin Description: Adds activity list to user profile, and links to all questions and answers of a user
 	Plugin Version: 1.0
-	Plugin Date: 2011-08-23
-	Plugin Author: Scott Vivian
-	Plugin Author URI: http://codelair.co.uk/
+	Plugin Date: 2011-10-26
+	Plugin Author: NoahY
+	Plugin Author URI: http://www.question2answer.org/qa/user/NoahY
 	Plugin License: GPLv3
 	Plugin Minimum Question2Answer Version: 1.4
 
@@ -21,6 +21,8 @@
 	GNU General Public License for more details.
 
 	More about this license: http://www.gnu.org/licenses/gpl.html
+	
+	Contains code from Scott Vivian's User Activity Plus plugin.
 */
 
 if ( !defined('QA_VERSION') )
@@ -29,6 +31,7 @@ if ( !defined('QA_VERSION') )
 	exit;
 }
 
-
 qa_register_plugin_module('page', 'qa-user-activity.php', 'qa_user_activity', 'User Activity Plus');
 qa_register_plugin_layer('qa-user-activity-layer.php', 'User Activity Layer');
+qa_register_plugin_module('event', 'qa-user-activity-check.php','user_activity_check','Activity Check');
+qa_register_plugin_module('module', 'qa-user-activity-admin.php','user_activity_admin','Activity Admin');
