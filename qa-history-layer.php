@@ -157,7 +157,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 					)
 				);
 				if($parent['type'] == 'A') {
-					qa_db_select_with_pending(
+					$parent = qa_db_select_with_pending(
 						qa_db_full_post_selectspec(
 							$userid,
 							$parent['parentid']
