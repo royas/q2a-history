@@ -327,9 +327,10 @@ c_post';
 		
 			if (qa_clicked('user_act_list_save')) {
 				
-				if((bool)qa_post_text('user_act_list_active') && !qa_opt('event_logger_to_database'))
+				if((bool)qa_post_text('user_act_list_active') && !qa_opt('event_logger_to_database')) {
 					$error = 'Activity List requires activation of event logging to database via Event Logging plugin.  Please select "Log events to qa_eventlog database table" via that plugin and try again.';
 					qa_opt('user_act_list_active',false);
+				}
 				else {
 					
 					qa_opt('user_act_list_active',(bool)qa_post_text('user_act_list_active'));
