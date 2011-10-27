@@ -1,10 +1,5 @@
 <?php
-/*
-	Uses code from:
-	
-	Question2Answer User Activity Plus plugin, v1.0
-	License: http://www.gnu.org/licenses/gpl.html
-*/
+
 class qa_html_theme_layer extends qa_html_theme_base
 {
 
