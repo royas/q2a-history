@@ -395,7 +395,7 @@ c_post';
 				'value' => qa_opt('user_act_list_hide'),
 				'type' => 'textarea',
 				'note' => 'one per line, use event names (q_post, etc.) below',
-				'rows' => 20
+				'rows' => 10
 			);
 			
 			$fields[] = array(
@@ -404,7 +404,7 @@ c_post';
 				'value' => qa_opt('user_act_list_show'),
 				'type' => 'textarea',
 				'note' => 'one per line, use event names (q_post, etc.) below',
-				'rows' => 20
+				'rows' => 10
 			);
 			
 			$fields[] = array(
