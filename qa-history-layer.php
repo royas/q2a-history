@@ -137,7 +137,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 				}
 				else if(in_array($type, array('u_edit','u_level','u_block','u_unblock'))) {
 					$ohandle = $this->getHandleFromID($params['userid']);
-					$link = '<a href="'.qa_path('user/'.$ohandle, null, qa_opt('site_url')).'">'.$ohandle.'</a>';
+					$link = '<a href="'.qa_path_html('user/'.$ohandle, null, qa_opt('site_url')).'">'.$ohandle.'</a>';
 				}
 				else($link = '');
 			}
@@ -156,8 +156,16 @@ class qa_html_theme_layer extends qa_html_theme_base
 						$pid
 					)
 				);
-				$anchor = qa_anchor('A', $params['postid']);
-				$activity_url = qa_path_html(qa_q_request($parent['postid'], $parent['title']), null, qa_opt('site_url'));
+				if($parent['type'] == 'A') {
+					qa_db_select_with_pending(
+						qa_db_full_post_selectspec(
+							$userid,
+							$parent['parentid']
+						)
+					);				
+				}
+				$anchor = qa_anchor((strpos($event['event'],'a_') === 0 || strpos($event['event'],'in_a_') === 0?'A':'C'), $params['postid']);
+				$activity_url = qa_path_html(qa_q_request($parent['postid'], $parent['title']), null, qa_opt('site_url'),null,$anchor);
 				$link = '<a href="'.$activity_url.'">'.$parent['title'].'</a>';
 			}
 			else {
