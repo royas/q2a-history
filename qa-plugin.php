@@ -22,7 +22,6 @@
 
 	More about this license: http://www.gnu.org/licenses/gpl.html
 	
-	Contains code from Scott Vivian's User Activity Plus plugin.
 */
 
 if ( !defined('QA_VERSION') )
@@ -31,7 +30,6 @@ if ( !defined('QA_VERSION') )
 	exit;
 }
 
-qa_register_plugin_module('page', 'qa-user-activity.php', 'qa_user_activity', 'User Activity Plus');
 qa_register_plugin_layer('qa-user-activity-layer.php', 'User Activity Layer');
 qa_register_plugin_module('event', 'qa-user-activity-check.php','user_activity_check','Activity Check');
 qa_register_plugin_module('module', 'qa-user-activity-admin.php','user_activity_admin','Activity Admin');
