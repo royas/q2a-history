@@ -15,10 +15,16 @@
 'u_login': 
 'u_logout':
 */
+				case 'user_act_list_tab':
+					return 'History';
 				case 'user_act_list_title':
-					return 'Recent Activity';
+					return 'Recent History';
+				case 'user_act_list_new_text':
+					return '# new notification1/notifications';
 				case 'user_act_list_age':
 					return 30;
+				case 'user_act_list_max':
+					return 0;
 
 				case 'user_act_list_hide':
 					return 'in_u_block
@@ -32,23 +38,23 @@ c_post';
 
 
 				case 'user_act_list_css':
-					return '.qa-activity-item-table{
+					return '.qa-history-item-table{
 	width:100%;
 	min-width:500px;
 }
-.qa-activity-item-type-cell{
+.qa-history-item-type-cell{
 	width:35%;
 }
 
-.qa-activity-item-title-cell{
+.qa-history-item-title-cell{
 	width:45%;
 }
 
-.qa-activity-item-points-cell{
+.qa-history-item-points-cell{
 	width:20%;
 }
 
-.qa-activity-item-date {
+.qa-history-item-date {
 	background-color: #EEEEEE;
 	color: #999999;
 	float: left;
@@ -59,27 +65,40 @@ c_post';
 	white-space: normal;
 	width: 45px;
 }
-.qa-activity-item-date-no {
+.qa-history-item-date-new {
+	background-color: #FF0 !important;
+}
+.qa-history-item-date-no {
 	font-size:150%;
 }
-.qa-activity-item-type {
+.qa-history-item-type {
     font-weight: bold;
     padding: 3px;
 }
-.qa-activity-item-title a{
+.qa-history-item-title a{
     color: #555555 !important;
     font-weight: bold;
 }
-.qa-activity-item-points {
+.qa-history-item-points {
 	font-weight: bold;
 	font-family: sans-serif;
 	padding: 10px;
 }
-.qa-activity-item-points-neg {
+.qa-history-item-points-neg {
 	color: Maroon;
 }
-.qa-activity-item-points-pos {
+.qa-history-item-points-pos {
 	color: Green;
+}
+.qa-history-new-event-count {
+	background-color: yellow;
+	border: 1px solid #EEEE00;
+	border-radius: 4px 4px 4px 4px;
+	cursor: pointer;
+	font-size: 75%;
+	font-weight: bold;
+	padding: 1px 3px;
+	vertical-align: top;
 }
 ';
 
@@ -194,6 +213,11 @@ c_post';
 				case 'user_act_list_a_vote_nil':
 					return 'unvoted an answer';
 
+				case 'user_act_list_in_q_vote_nil':
+					return 'question unvoted';
+				case 'user_act_list_in_a_vote_nil':
+					return 'answer unvoted';
+
 					
 				case 'user_act_list_u_password':
 					return 'set password';
@@ -290,17 +314,18 @@ c_post';
 				'in_a_select',
 				'in_a_unselect',
 				
-				'in_q_vote_up',
-				'in_q_vote_down',
-				'in_a_vote_up',
-				'in_a_vote_down',
 				'q_vote_up',
 				'q_vote_down',
 				'a_vote_up',
 				'a_vote_down',
-
 				'q_vote_nil',
 				'a_vote_nil',
+				'in_q_vote_up',
+				'in_q_vote_down',
+				'in_a_vote_up',
+				'in_a_vote_down',
+				'in_q_vote_nil',
+				'in_a_vote_nil',
 				
 				'u_password',
 				'u_reset',
@@ -332,14 +357,31 @@ c_post';
 					qa_opt('user_act_list_active',false);
 				}
 				else {
-					
+					$table_exists = qa_db_read_one_value(qa_db_query_sub("SHOW TABLES LIKE '^usermeta'"),true);
+					if(!$table_exists) {
+						qa_db_query_sub(
+							'CREATE TABLE IF NOT EXISTS ^usermeta (
+							meta_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+							user_id bigint(20) unsigned NOT NULL,
+							meta_key varchar(255) DEFAULT NULL,
+							meta_value longtext,
+							PRIMARY KEY (meta_id),
+							UNIQUE (user_id,meta_key)
+							) ENGINE=MyISAM  DEFAULT CHARSET=utf8'
+						);		
+					}				
 					qa_opt('user_act_list_active',(bool)qa_post_text('user_act_list_active'));
 					qa_opt('user_act_list_replace',(bool)qa_post_text('user_act_list_replace'));
-					qa_opt('user_act_list_shading',(bool)qa_post_text('user_act_list_shading'));
-					qa_opt('user_act_list_css',qa_post_text('user_act_list_css'));
-					qa_opt('user_act_list_title',qa_post_text('user_act_list_title'));
-					qa_opt('user_act_list_age',(int)qa_post_text('user_act_list_age'));
+					qa_opt('user_act_list_new',(bool)qa_post_text('user_act_list_new'));
 					
+					qa_opt('user_act_list_title',qa_post_text('user_act_list_title'));
+					qa_opt('user_act_list_tab',qa_post_text('user_act_list_tab'));
+					qa_opt('user_act_list_age',(int)qa_post_text('user_act_list_age'));
+					qa_opt('user_act_list_max',(int)qa_post_text('user_act_list_max'));
+					
+					qa_opt('user_act_list_css',qa_post_text('user_act_list_css'));
+					qa_opt('user_act_list_shading',(bool)qa_post_text('user_act_list_shading'));
+
 					qa_opt('user_act_list_show',qa_post_text('user_act_list_show'));
 					qa_opt('user_act_list_hide',qa_post_text('user_act_list_hide'));
 					
@@ -377,16 +419,30 @@ c_post';
 				'type' => 'checkbox',
 			);
 			
+
+
 			$fields[] = array(
-				'label' => 'Title for activity list',
+				'label' => 'Title for history list',
 				'tags' => 'NAME="user_act_list_title"',
 				'value' => qa_opt('user_act_list_title'),
+			);
+			$fields[] = array(
+				'label' => 'Title for history tab',
+				'tags' => 'NAME="user_act_list_tab"',
+				'value' => qa_opt('user_act_list_tab'),
 			);
 			
 			$fields[] = array(
 				'label' => 'Age in days of oldest activity to show',
 				'tags' => 'NAME="user_act_list_age"',
 				'value' => qa_opt('user_act_list_age'),
+				'type' => 'number',
+			);
+			
+			$fields[] = array(
+				'label' => 'Maximum number of entries to show',
+				'tags' => 'NAME="user_act_list_max"',
+				'value' => qa_opt('user_act_list_max'),
 				'type' => 'number',
 			);
 			
@@ -406,6 +462,27 @@ c_post';
 				'type' => 'textarea',
 				'note' => 'one per line, use event names (q_post, etc.) below',
 				'rows' => 10
+			);
+
+			$fields[] = array(
+				'type' => 'blank',
+			);
+			$fields[] = array(
+				'label' => 'Show new incoming events notification',
+				'tags' => 'NAME="user_act_list_new"',
+				'value' => qa_opt('user_act_list_new'),
+				'type' => 'checkbox',
+			);
+			
+			$fields[] = array(
+				'label' => 'Tooltip text for new event notification bubble',
+				'tags' => 'NAME="user_act_list_new_text"',
+				'value' => qa_opt('user_act_list_new_text'),
+				'note' => '# will be replaced by event number, word1/word2/word is for singular/dual/plural, etc. (number signifies max number for use - last word is default)',
+			);
+
+			$fields[] = array(
+				'type' => 'blank',
 			);
 			
 			$fields[] = array(

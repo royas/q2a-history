@@ -3,8 +3,87 @@
 class qa_html_theme_layer extends qa_html_theme_base
 {
 
+	function doctype() {
+		if(qa_get_logged_in_userid() && qa_opt('user_act_list_active') && qa_opt('user_act_list_new') && ($this->template != 'user' || qa_get_logged_in_handle() != $this->_user_handle())) {
+
+			$table_exists = qa_db_read_one_value(qa_db_query_sub("SHOW TABLES LIKE '^usermeta'"),true);
+			if(!$table_exists) {
+				qa_db_query_sub(
+					'CREATE TABLE IF NOT EXISTS ^usermeta (
+					meta_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+					user_id bigint(20) unsigned NOT NULL,
+					meta_key varchar(255) DEFAULT NULL,
+					meta_value longtext,
+					PRIMARY KEY (meta_id),
+					UNIQUE (user_id,meta_key)
+					) ENGINE=MyISAM  DEFAULT CHARSET=utf8'
+				);		
+			}
+
+			$last_visit = qa_db_read_one_value(
+				qa_db_query_sub(
+					'SELECT UNIX_TIMESTAMP(meta_value) FROM ^usermeta WHERE user_id=# AND meta_key=$',
+					qa_get_logged_in_userid(), 'visited_profile'
+				),
+				true
+			);
+			if($last_visit) {
+				$events = qa_db_read_one_value(
+					qa_db_query_sub(
+						'SELECT COUNT(event) FROM ^eventlog WHERE userid=# AND DATE_SUB(CURDATE(),INTERVAL # DAY) <= datetime AND FROM_UNIXTIME(#) <= datetime AND event LIKE \'in_%\''.(qa_opt('user_act_list_max')?' LIMIT '.(int)qa_opt('user_act_list_max'):''),
+						qa_get_logged_in_userid(), qa_opt('user_act_list_age'), $last_visit
+					)
+				);
+				if($events) {
+					$tooltip = str_replace('#',$events,qa_opt('user_act_list_new_text'));
+					
+					// pluralizing
+
+					preg_match('/\S+\/\S+/',qa_opt('user_act_list_new_text'),$voicea);
+					$voices = explode('/',$voicea[0]);
+					foreach ($voices as $voice) {
+						if(!preg_match('/[0-9]/',substr($voice,-1))) {
+							$tooltip = preg_replace('/\S+\/\S+/',$voice, $tooltip);
+							break;
+						}
+						else if((int)substr($voice,-1) >= $events) {
+							$tooltip = preg_replace('/\S+\/\S+/',substr($voice,0,-1),$tooltip);
+							break;
+						}
+					}
+					
+					$this->content['loggedin']['suffix'] = @$this->content['loggedin']['suffix'].' <a title="'.$tooltip.'" href="'.qa_path_html('user/'.qa_get_logged_in_handle(), array('tab'=>'history'), qa_opt('site_url'),null,'historyList').'"><span class="qa-history-new-event-count">'.$events.'</span></a>';
+				}
+			}
+		}
+		if($this->template == 'user' && qa_get_logged_in_handle() === $this->_user_handle()) {
+			if(!isset($this->content['navigation']['sub'])) {
+				$this->content['navigation']['sub'] = array(
+					'profile' => array(
+						'url' => qa_path_html('user/'.$this->_user_handle(), null, qa_opt('site_url')),
+						'label' => $this->_user_handle(),
+						'selected' => !qa_get('tab')?true:false
+					),
+					'history' => array(
+						'url' => qa_path_html('user/'.$this->_user_handle(), array('tab'=>'history'), qa_opt('site_url')),
+						'label' => qa_opt('user_act_list_tab'),
+						'selected' => qa_get('tab')=='history'?true:false
+					),
+				);
+			}
+			else {
+				$this->content['navigation']['sub']['history'] = array(
+					'url' => qa_path_html('user/'.$this->_user_handle(), array('tab'=>'history'), qa_opt('site_url')),
+					'label' => qa_opt('user_act_list_tab'),
+					'selected' => qa_get('tab')=='history'?true:false
+				);
+			}
+		}
+		qa_html_theme_base::doctype();
+	}
+
 	function head_custom() {
-		if($this->template == 'user' && qa_opt('user_act_list_active')) {
+		if(($this->template == 'user' || qa_opt('user_act_list_new')) && qa_opt('user_act_list_active')) {
 				$this->output('<style>',str_replace('^',QA_HTML_THEME_LAYER_URLTOROOT,qa_opt('user_act_list_css')),'</style>');
 		}
 		qa_html_theme_base::head_custom();
@@ -20,24 +99,9 @@ class qa_html_theme_layer extends qa_html_theme_base
 
 	function main_parts($content)
 	{
-		if($this->template == 'user' && qa_opt('event_logger_to_database') && qa_opt('user_act_list_active')) {
-
-			if($content['q_list']) {  // paranoia
-			
-				$keys = array_keys($content);
-				$vals = array_values($content);
-
-				$insertBefore = array_search('q_list', $keys);
-
-				$keys2 = array_splice($keys, $insertBefore);
-				$vals2 = array_splice($vals, $insertBefore);
-
-				$keys[] = 'form-activity-list';
-				$vals[] = $this->user_activity_form();
-
-				$content = array_merge(array_combine($keys, $vals), array_combine($keys2, $vals2));
-			}
-			else $content['form-activity-list'] = $this->user_activity_form();  // this shouldn't happen
+		if($this->template == 'user' && qa_get('tab')=='history' && qa_opt('event_logger_to_database') && qa_opt('user_act_list_active')) {
+			$content = array();
+			$content['form-activity-list'] = $this->user_activity_form();  
 		}
 			
 
@@ -50,8 +114,41 @@ class qa_html_theme_layer extends qa_html_theme_base
 		if(!$handle) return;
 		$userid = $this->getuserfromhandle($handle);
 		
+		// update last visit
+		
+		if($userid === qa_get_logged_in_userid() && qa_opt('user_act_list_new')) {
+			
+			$table_exists = qa_db_read_one_value(qa_db_query_sub("SHOW TABLES LIKE '^usermeta'"),true);
+			if(!$table_exists) {
+				qa_db_query_sub(
+					'CREATE TABLE IF NOT EXISTS ^usermeta (
+					meta_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+					user_id bigint(20) unsigned NOT NULL,
+					meta_key varchar(255) DEFAULT NULL,
+					meta_value longtext,
+					PRIMARY KEY (meta_id),
+					UNIQUE (user_id,meta_key)
+					) ENGINE=MyISAM  DEFAULT CHARSET=utf8'
+				);		
+			}
+
+			$last_visit = qa_db_read_one_value(
+				qa_db_query_sub(
+					'SELECT UNIX_TIMESTAMP(meta_value) FROM ^usermeta WHERE user_id=# AND meta_key=$',
+					qa_get_logged_in_userid(), 'visited_profile'
+				),
+				true
+			);
+
+			qa_db_query_sub(
+				'INSERT INTO ^usermeta (user_id,meta_key,meta_value) VALUES(#,$,NOW()) ON DUPLICATE KEY UPDATE meta_value=NOW()',
+				$userid, 'visited_profile'
+			);
+		}
+		else $last_visit = time();
+		
 		$events = qa_db_query_sub(
-			'SELECT event, params, UNIX_TIMESTAMP(datetime) AS datetime FROM ^eventlog WHERE userid = # AND DATE_SUB(CURDATE(),INTERVAL # DAY) <= datetime ORDER BY datetime DESC',
+			'SELECT event, params, UNIX_TIMESTAMP(datetime) AS datetime FROM ^eventlog WHERE userid = # AND DATE_SUB(CURDATE(),INTERVAL # DAY) <= datetime ORDER BY datetime DESC'.(qa_opt('user_act_list_max')?' LIMIT '.(int)qa_opt('user_act_list_max'):''),
 			$userid, qa_opt('user_act_list_age')
 		);
 
@@ -86,15 +183,17 @@ class qa_html_theme_layer extends qa_html_theme_base
 		$options=qa_get_options($optionnames);
 		$multi = (int)$options['points_multiple'];
 		
-		$option_events['q_post'] = (int)$options['points_post_q']*$multi;
-		$option_events['a_select'] = (int)$options['points_select_a']*$multi;
 		$option_events['in_q_vote_up'] = (int)$options['points_per_q_voted']*$multi;
 		$option_events['in_q_vote_down'] = (int)$options['points_per_q_voted']*$multi*(-1);
-		$option_events['a_post'] = (int)$options['points_post_a']*$multi;
-		$option_events['in_a_select'] = (int)$options['points_a_selected']*$multi;
-		$option_events['in_a_unselect'] = (int)$options['points_a_selected']*$multi*(-1);
+		$option_events['in_q_vote_nil'] = (int)$options['points_per_q_voted']*$multi;
 		$option_events['in_a_vote_up'] = (int)$options['points_per_a_voted']*$multi;
 		$option_events['in_a_vote_down'] = (int)$options['points_per_a_voted']*$multi*(-1);
+		$option_events['in_a_vote_nil'] = (int)$options['points_per_a_voted']*$multi;
+		$option_events['in_a_select'] = (int)$options['points_a_selected']*$multi;
+		$option_events['in_a_unselect'] = (int)$options['points_a_selected']*$multi*(-1);
+		$option_events['q_post'] = (int)$options['points_post_q']*$multi;
+		$option_events['a_post'] = (int)$options['points_post_a']*$multi;
+		$option_events['a_select'] = (int)$options['points_select_a']*$multi;
 		$option_events['q_vote_up'] = (int)$options['points_vote_up_q']*$multi;
 		$option_events['q_vote_down'] = (int)$options['points_vote_down_q']*$multi;
 		$option_events['a_vote_up'] = (int)$options['points_vote_up_a']*$multi;
@@ -205,14 +304,21 @@ class qa_html_theme_layer extends qa_html_theme_base
 			$whenhtml=qa_html(qa_time_to_string(qa_opt('db_time')-$time));
 			$when = qa_lang_html_sub('main/x_ago', $whenhtml);
 			$when = str_replace(' ','<br/>',$when);
-			$when = preg_replace('/([0-9]+)/','<span class="qa-activity-item-date-no">$1</span>',$when);
+			$when = preg_replace('/([0-9]+)/','<span class="qa-history-item-date-no">$1</span>',$when);
+
 			
-			$params = explode("\t",$event['params']);
 			$points = @$option_events[$type];
+			
+			// special points
+			
+			if(in_array($type,array('in_q_vote_nil','in_a_vote_nil'))) {
+				$points = $points*((int)$params['oldvote'] > (int)$params['vote']?-1:1);
+			}
+			
 			$fields[] = array(
 				'type' => 'static',
-				'label'=> '<div class="qa-activity-item-date"'.(qa_opt('user_act_list_shading')?' style="color:'.$col.';background-color:'.$bkg.'"':'').'>'.$when.'</div>',
-				'value'=> '<table class="qa-activity-item-table"><tr><td class="qa-activity-item-type-cell"><div class="qa-activity-item-type qa-activity-item-'.$type.'">'.qa_opt('user_act_list_'.$type).'</div></td><td class="qa-activity-item-title-cell"><div class="qa-activity-item-title">'.$link.'</div></td class="qa-activity-item-points-cell"><td align="right">'.($points?'<div class="qa-activity-item-points qa-activity-item-points-'.($points<0?'neg">':'pos">+').$points.'</div>':'').'</td></tr></table>',
+				'label'=> '<div class="qa-history-item-date'.($time >= $last_visit?' qa-history-item-date-new':'').'"'.(qa_opt('user_act_list_shading')?' style="color:'.$col.';background-color:'.$bkg.'"':'').'>'.$when.'</div>',
+				'value'=> '<table class="qa-history-item-table"><tr><td class="qa-history-item-type-cell"><div class="qa-history-item-type qa-history-item-'.$type.'">'.qa_opt('user_act_list_'.$type).'</div></td><td class="qa-history-item-title-cell"><div class="qa-history-item-title">'.$link.'</div></td class="qa-history-item-points-cell"><td align="right">'.($points?'<div class="qa-history-item-points qa-history-item-points-'.($points<0?'neg">':'pos">+').$points.'</div>':'').'</td></tr></table>',
 			);
 		}		
 		
@@ -220,7 +326,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 		
 		return array(				
 			'style' => 'wide',
-			'title' => qa_opt('user_act_list_title'),
+			'title' => '<a name="historyList">'.qa_opt('user_act_list_title'),
 			'fields'=>$fields,
 		);
 
