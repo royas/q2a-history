@@ -58,6 +58,9 @@ class qa_html_theme_layer extends qa_html_theme_base
 		// no post
 		
 		$nopost = array(
+			'q_delete',
+			'a_delete',
+			'c_delete',
 			'u_password',
 			'u_reset',
 			'u_save',
@@ -126,7 +129,6 @@ class qa_html_theme_layer extends qa_html_theme_base
 			foreach($paramsa as $param) {
 				$parama = explode('=',$param);
 				$params[$parama[0]]=$parama[1];
-				if($type=='in_q_vote_up') qa_error_log($params);
 			}
 			
 			if(in_array($type, $nopost)) {
@@ -175,26 +177,42 @@ class qa_html_theme_layer extends qa_html_theme_base
 						qa_db_query_sub(
 							'SELECT title FROM ^posts WHERE postid=#',
 							$params['postid']
-						)
+						),
+						true
 					);
 				}
-
-				$activity_url = qa_path_html(qa_q_request($params['postid'], $params['title']), null, qa_opt('site_url'));
-				$link = '<a href="'.$activity_url.'">'.$params['title'].'</a>';
+				if($params['title'] !== null) {
+					$activity_url = qa_path_html(qa_q_request($params['postid'], $params['title']), null, qa_opt('site_url'));
+					$link = '<a href="'.$activity_url.'">'.$params['title'].'</a>';
+				}
 			}
 			
 			$time = $event['datetime'];
+			
+			if(qa_opt('user_act_list_shading')) {
+				$days = (qa_opt('db_time')-$time)/60/60/24;
+				
+				$col = round($days/qa_opt('user_act_list_age')*255*3/4);
+				$bkg = 255-round($days/qa_opt('user_act_list_age')*255/4);
+				$bkg = dechex($bkg);
+				$col = dechex($col);
+				if (strlen($col) == 1) $col = '0'.$col;
+				if (strlen($bkg) == 1) $bkg = '0'.$bkg;
+				$col = '#' . $col .$col . $col;
+				$bkg = '#' . $bkg .$bkg . $bkg;
+			}
+
 			$whenhtml=qa_html(qa_time_to_string(qa_opt('db_time')-$time));
-			$whenhtml = preg_replace('/([0-9]+)/','<span class="qa-activity-item-date-no">$1</span>',$whenhtml);
 			$when = qa_lang_html_sub('main/x_ago', $whenhtml);
-			//$when = str_replace(' ','<br/>',$when);
+			$when = str_replace(' ','<br/>',$when);
+			$when = preg_replace('/([0-9]+)/','<span class="qa-activity-item-date-no">$1</span>',$when);
 			
 			$params = explode("\t",$event['params']);
 			$points = @$option_events[$type];
 			$fields[] = array(
 				'type' => 'static',
-				'label'=> '<div class="qa-activity-item-date">'.$when.'</div>',
-				'value'=> '<table class="qa-activity-item-table"><tr><td class="qa-activity-item-type-cell"><div class="qa-activity-item-type">'.qa_opt('user_act_list_'.$type).'</div></td><td class="qa-activity-item-title-cell"><div class="qa-activity-item-title">'.$link.'</div></td class="qa-activity-item-points-cell"><td align="right">'.($points?'<div class="qa-activity-item-points qa-activity-item-points-'.($points<0?'neg">':'pos">+').$points.'</div>':'').'</td></tr></table>',
+				'label'=> '<div class="qa-activity-item-date"'.(qa_opt('user_act_list_shading')?' style="color:'.$col.';background-color:'.$bkg.'"':'').'>'.$when.'</div>',
+				'value'=> '<table class="qa-activity-item-table"><tr><td class="qa-activity-item-type-cell"><div class="qa-activity-item-type qa-activity-item-'.$type.'">'.qa_opt('user_act_list_'.$type).'</div></td><td class="qa-activity-item-title-cell"><div class="qa-activity-item-title">'.$link.'</div></td class="qa-activity-item-points-cell"><td align="right">'.($points?'<div class="qa-activity-item-points qa-activity-item-points-'.($points<0?'neg">':'pos">+').$points.'</div>':'').'</td></tr></table>',
 			);
 		}		
 		

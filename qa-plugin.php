@@ -1,8 +1,8 @@
 <?php
 /*
-	Plugin Name: Activity List
+	Plugin Name: History
 	Plugin URI: https://github.com/NoahY/q2a-admin-plus
-	Plugin Description: Adds activity list to user profile, and links to all questions and answers of a user
+	Plugin Description: Adds complete activity history list to user profile
 	Plugin Version: 1.0
 	Plugin Date: 2011-10-26
 	Plugin Author: NoahY

@@ -335,6 +335,7 @@ c_post';
 					
 					qa_opt('user_act_list_active',(bool)qa_post_text('user_act_list_active'));
 					qa_opt('user_act_list_replace',(bool)qa_post_text('user_act_list_replace'));
+					qa_opt('user_act_list_shading',(bool)qa_post_text('user_act_list_shading'));
 					qa_opt('user_act_list_css',qa_post_text('user_act_list_css'));
 					qa_opt('user_act_list_title',qa_post_text('user_act_list_title'));
 					qa_opt('user_act_list_age',(int)qa_post_text('user_act_list_age'));
@@ -414,6 +415,14 @@ c_post';
 				'type' => 'textarea',
 				'rows' => 20
 			);
+			
+			$fields[] = array(
+				'label' => 'Use date shading based on age?',
+				'tags' => 'NAME="user_act_list_shading"',
+				'value' => qa_opt('user_act_list_shading'),
+				'type' => 'checkbox',
+			);
+			
 			$fields[] = array(
 				'type' => 'blank',
 			);
