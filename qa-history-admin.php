@@ -153,6 +153,20 @@ c_post';
 				case 'user_act_list_c_claim':
 					return 'claimed a comment';
 
+				case 'user_act_list_q_flag':
+					return 'unflagged a question';
+				case 'user_act_list_a_flag':
+					return 'unflagged an answer';
+				case 'user_act_list_c_flag':
+					return 'unflagged a comment';
+
+				case 'user_act_list_q_in_flag':
+					return 'unflagged a question';
+				case 'user_act_list_a_in_flag':
+					return 'unflagged an answer';
+				case 'user_act_list_c_in_flag':
+					return 'unflagged a comment';
+
 				case 'user_act_list_q_unflag':
 					return 'unflagged a question';
 				case 'user_act_list_a_unflag':
@@ -160,19 +174,13 @@ c_post';
 				case 'user_act_list_c_unflag':
 					return 'unflagged a comment';
 
-				case 'user_act_list_in_q_unflag':
-					return 'question unflagged';
-				case 'user_act_list_in_a_unflag':
-					return 'answer unflagged';
-				case 'user_act_list_in_c_unflag':
-					return 'comment unflagged';
+				case 'user_act_list_in_q_flag':
+					return 'question flagged';
+				case 'user_act_list_in_a_flag':
+					return 'answer flagged';
+				case 'user_act_list_in_c_flag':
+					return 'comment flagged';
 
-				case 'user_act_list_q_unflag':
-					return 'unflagged a question';
-				case 'user_act_list_a_unflag':
-					return 'unflagged an answer';
-				case 'user_act_list_c_unflag':
-					return 'unflagged a comment';
 
 				case 'user_act_list_in_q_unflag':
 					return 'question unflagged';
@@ -217,6 +225,15 @@ c_post';
 					return 'question unvoted';
 				case 'user_act_list_in_a_vote_nil':
 					return 'answer unvoted';
+					
+			// special
+			
+				case 'user_act_list_in_a_question':
+					return 'question answered';
+				case 'user_act_list_in_c_question':
+					return 'question commented on';
+				case 'user_act_list_in_c_answer':
+					return 'answer commented on';
 
 					
 				case 'user_act_list_u_password':
@@ -293,17 +310,17 @@ c_post';
 				'a_claim',
 				'c_claim',
 
-				'q_unflag',
-				'a_unflag',
-				'c_unflag',
-
-				'in_q_unflag',
-				'in_a_unflag',
-				'in_c_unflag',
+				'q_flag',
+				'a_flag',
+				'c_flag',
 
 				'q_unflag',
 				'a_unflag',
 				'c_unflag',
+
+				'in_q_flag',
+				'in_a_flag',
+				'in_c_flag',
 
 				'in_q_unflag',
 				'in_a_unflag',

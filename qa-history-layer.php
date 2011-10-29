@@ -243,18 +243,20 @@ class qa_html_theme_layer extends qa_html_theme_base
 				else($link = '');
 			}
 			else if(strpos($event['event'],'q_') !== 0 && strpos($event['event'],'in_q_') !== 0) { // comment or answer
-				$pid = qa_db_read_one_value(
-					qa_db_query_sub(
-						'SELECT parentid FROM ^posts WHERE postid=#',
-						$params['postid']
-					),
-					true
-				);
+				if(!isset($params['parentid'])) {
+					$params['parentid'] = qa_db_read_one_value(
+						qa_db_query_sub(
+							'SELECT parentid FROM ^posts WHERE postid=#',
+							$params['postid']
+						),
+						true
+					);
+				}
 
 				$parent = qa_db_select_with_pending(
 					qa_db_full_post_selectspec(
 						$userid,
-						$pid
+						$params['parentid']
 					)
 				);
 				if($parent['type'] == 'A') {
@@ -265,6 +267,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 						)
 					);				
 				}
+				
 				$anchor = qa_anchor((strpos($event['event'],'a_') === 0 || strpos($event['event'],'in_a_') === 0?'A':'C'), $params['postid']);
 				$activity_url = qa_path_html(qa_q_request($parent['postid'], $parent['title']), null, qa_opt('site_url'),null,$anchor);
 				$link = '<a href="'.$activity_url.'">'.$parent['title'].'</a>';
@@ -317,7 +320,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 			
 			$fields[] = array(
 				'type' => 'static',
-				'label'=> '<div class="qa-history-item-date'.($time >= $last_visit?' qa-history-item-date-new':'').'"'.(qa_opt('user_act_list_shading')?' style="color:'.$col.';background-color:'.$bkg.'"':'').'>'.$when.'</div>',
+				'label'=> '<div class="qa-history-item-date'.(($time >= $last_visit && strpos($type,'in_') === 0)?' qa-history-item-date-new':'').'"'.(qa_opt('user_act_list_shading')?' style="color:'.$col.';background-color:'.$bkg.'"':'').'>'.$when.'</div>',
 				'value'=> '<table class="qa-history-item-table"><tr><td class="qa-history-item-type-cell"><div class="qa-history-item-type qa-history-item-'.$type.'">'.qa_opt('user_act_list_'.$type).'</div></td><td class="qa-history-item-title-cell"><div class="qa-history-item-title">'.$link.'</div></td class="qa-history-item-points-cell"><td align="right">'.($points?'<div class="qa-history-item-points qa-history-item-points-'.($points<0?'neg">':'pos">+').$points.'</div>':'').'</td></tr></table>',
 			);
 		}		

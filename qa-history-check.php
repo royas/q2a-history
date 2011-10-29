@@ -28,6 +28,12 @@
 				'u_block',
 				'u_unblock',
 			 );
+			 
+			 $special = array(
+				'a_post',
+				'c_post'
+			);
+			 
 			//$undo = array('a_unselect', 'q_vote_nil', 'a_vote_nil','q_unflag', 'a_unflag', 'c_unflag');
 			
 			/*
@@ -73,10 +79,10 @@
 			if(in_array($event, $twoway)) {
 				
 				if(strpos($event,'u_') === 0) {
-					$userid = $params['userid'];
+					$uid = $params['userid'];
 				}
 				else {
-					$userid = qa_db_read_one_value(
+					$uid = qa_db_read_one_value(
 						qa_db_query_sub(
 							'SELECT userid FROM ^posts WHERE postid=#',
 							$params['postid']
@@ -85,8 +91,9 @@
 					);
 				}
 				
-				$handle = $this->getHandleFromId($userid);
-				$event = 'in_'.$event;
+				$ohandle = $this->getHandleFromId($uid);
+				
+				$oevent = 'in_'.$event;
 				
 				$paramstring='';
 				
@@ -96,8 +103,46 @@
 				qa_db_query_sub(
 					'INSERT INTO ^eventlog (datetime, ipaddress, userid, handle, cookieid, event, params) '.
 					'VALUES (NOW(), $, $, $, #, $, $)',
-					qa_remote_ip_address(), $userid, $handle, $cookieid, $event, $paramstring
+					qa_remote_ip_address(), $uid, $ohandle, $cookieid, $oevent, $paramstring
 				);
+			}
+			
+			// comments and answers
+			
+			if(in_array($event,$special)) {
+				$pid = qa_db_read_one_value(
+					qa_db_query_sub(
+						'SELECT userid FROM ^posts WHERE postid=#',
+						$params['parentid']
+					),
+					true
+				);
+			
+				$ohandle = $this->getHandleFromId($pid);
+				
+				
+				switch($event) {
+					case 'a_post':
+							$oevent = 'in_a_question';
+						break;
+					case 'c_post':
+						if ($params['parenttype'] == 'Q')
+							$oevent = 'in_c_question';
+						else 
+							$oevent = 'in_c_answer';
+						break;
+				}
+				
+				$paramstring='';
+				
+				foreach ($params as $key => $value)
+					$paramstring.=(strlen($paramstring) ? "\t" : '').$key.'='.$this->value_to_text($value);
+				
+				qa_db_query_sub(
+					'INSERT INTO ^eventlog (datetime, ipaddress, userid, handle, cookieid, event, params) '.
+					'VALUES (NOW(), $, $, $, #, $, $)',
+					qa_remote_ip_address(), $pid, $ohandle, $cookieid, $oevent, $paramstring
+				);				
 			}
 		
 		}
