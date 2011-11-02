@@ -154,18 +154,11 @@ c_post';
 					return 'claimed a comment';
 
 				case 'user_act_list_q_flag':
-					return 'unflagged a question';
+					return 'flagged a question';
 				case 'user_act_list_a_flag':
-					return 'unflagged an answer';
+					return 'flagged an answer';
 				case 'user_act_list_c_flag':
-					return 'unflagged a comment';
-
-				case 'user_act_list_q_in_flag':
-					return 'unflagged a question';
-				case 'user_act_list_a_in_flag':
-					return 'unflagged an answer';
-				case 'user_act_list_c_in_flag':
-					return 'unflagged a comment';
+					return 'flagged a comment';
 
 				case 'user_act_list_q_unflag':
 					return 'unflagged a question';
