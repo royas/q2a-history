@@ -386,7 +386,9 @@ c_post';
 					}				
 					qa_opt('user_act_list_active',(bool)qa_post_text('user_act_list_active'));
 					qa_opt('user_act_list_replace',(bool)qa_post_text('user_act_list_replace'));
+					
 					qa_opt('user_act_list_new',(bool)qa_post_text('user_act_list_new'));
+					qa_opt('user_act_list_new_text',qa_post_text('user_act_list_new_text'));
 					
 					qa_opt('user_act_list_title',qa_post_text('user_act_list_title'));
 					qa_opt('user_act_list_tab',qa_post_text('user_act_list_tab'));
