@@ -56,7 +56,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 				}
 			}
 		}
-		if($this->template == 'user' && qa_get_logged_in_handle() === $this->_user_handle()) {
+		if($this->template == 'user' && (qa_get_logged_in_handle() === $this->_user_handle() || qa_opt('user_act_list_show'))) {
 			if(!isset($this->content['navigation']['sub'])) {
 				$this->content['navigation']['sub'] = array(
 					'profile' => array(
@@ -277,7 +277,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 				if(!isset($params['title'])) {
 					$params['title'] = qa_db_read_one_value(
 						qa_db_query_sub(
-							'SELECT title FROM ^posts WHERE postid=#',
+							'SELECT BINARY title as title FROM ^posts WHERE postid=#',
 							$params['postid']
 						),
 						true

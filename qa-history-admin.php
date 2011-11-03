@@ -319,6 +319,10 @@ c_post';
 				'in_a_unflag',
 				'in_c_unflag',
 
+				'in_a_question',
+				'in_c_question',
+				'in_c_answer',
+
 				'a_select',
 				'a_unselect',
 				'in_a_select',
