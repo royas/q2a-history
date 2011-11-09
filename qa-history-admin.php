@@ -297,7 +297,6 @@ c_post';
 
 				'q_move',
 				'a_to_c',
-				'c_claim',
 
 				'q_claim',
 				'a_claim',

@@ -91,20 +91,22 @@
 					);
 				}
 				
-				$ohandle = $this->getHandleFromId($uid);
-				
-				$oevent = 'in_'.$event;
-				
-				$paramstring='';
-				
-				foreach ($params as $key => $value)
-					$paramstring.=(strlen($paramstring) ? "\t" : '').$key.'='.$this->value_to_text($value);
-				
-				qa_db_query_sub(
-					'INSERT INTO ^eventlog (datetime, ipaddress, userid, handle, cookieid, event, params) '.
-					'VALUES (NOW(), $, $, $, #, $, $)',
-					qa_remote_ip_address(), $uid, $ohandle, $cookieid, $oevent, $paramstring
-				);
+				if($uid != $userid) {
+					$ohandle = $this->getHandleFromId($uid);
+					
+					$oevent = 'in_'.$event;
+					
+					$paramstring='';
+					
+					foreach ($params as $key => $value)
+						$paramstring.=(strlen($paramstring) ? "\t" : '').$key.'='.$this->value_to_text($value);
+					
+					qa_db_query_sub(
+						'INSERT INTO ^eventlog (datetime, ipaddress, userid, handle, cookieid, event, params) '.
+						'VALUES (NOW(), $, $, $, #, $, $)',
+						qa_remote_ip_address(), $uid, $ohandle, $cookieid, $oevent, $paramstring
+					);
+				}
 			}
 			
 			// comments and answers
@@ -117,32 +119,34 @@
 					),
 					true
 				);
+				if($pid != $userid) {
 			
-				$ohandle = $this->getHandleFromId($pid);
-				
-				
-				switch($event) {
-					case 'a_post':
-							$oevent = 'in_a_question';
-						break;
-					case 'c_post':
-						if ($params['parenttype'] == 'Q')
-							$oevent = 'in_c_question';
-						else 
-							$oevent = 'in_c_answer';
-						break;
+					$ohandle = $this->getHandleFromId($pid);
+					
+					
+					switch($event) {
+						case 'a_post':
+								$oevent = 'in_a_question';
+							break;
+						case 'c_post':
+							if ($params['parenttype'] == 'Q')
+								$oevent = 'in_c_question';
+							else 
+								$oevent = 'in_c_answer';
+							break;
+					}
+					
+					$paramstring='';
+					
+					foreach ($params as $key => $value)
+						$paramstring.=(strlen($paramstring) ? "\t" : '').$key.'='.$this->value_to_text($value);
+					
+					qa_db_query_sub(
+						'INSERT INTO ^eventlog (datetime, ipaddress, userid, handle, cookieid, event, params) '.
+						'VALUES (NOW(), $, $, $, #, $, $)',
+						qa_remote_ip_address(), $pid, $ohandle, $cookieid, $oevent, $paramstring
+					);				
 				}
-				
-				$paramstring='';
-				
-				foreach ($params as $key => $value)
-					$paramstring.=(strlen($paramstring) ? "\t" : '').$key.'='.$this->value_to_text($value);
-				
-				qa_db_query_sub(
-					'INSERT INTO ^eventlog (datetime, ipaddress, userid, handle, cookieid, event, params) '.
-					'VALUES (NOW(), $, $, $, #, $, $)',
-					qa_remote_ip_address(), $pid, $ohandle, $cookieid, $oevent, $paramstring
-				);				
 			}
 		
 		}
