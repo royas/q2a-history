@@ -74,10 +74,9 @@ c_post';
 .qa-history-item-type {
     font-weight: bold;
     padding: 3px;
+    text-align:center;
 }
-.qa-history-item-badge_awarded {
-    white-space:nowrap;
-}
+
 .qa-history-item-title a{
     color: #555555 !important;
     font-weight: bold;
@@ -266,7 +265,7 @@ c_post';
 					return 'registered';
 				
 				case 'user_act_list_badge_awarded':
-					return '^badge badge awarded';
+					return '^badge';
 
 
 

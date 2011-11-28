@@ -376,7 +376,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 		
 		return array(				
 			'style' => 'wide',
-			'title' => '<a name="historyList">'.qa_opt('user_act_list_title'),
+			'title' => qa_opt('user_act_list_title'),
 			'fields'=>$fields,
 		);
 
