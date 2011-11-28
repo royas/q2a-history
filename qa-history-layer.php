@@ -52,7 +52,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 						}
 					}
 					
-					$this->content['loggedin']['suffix'] = @$this->content['loggedin']['suffix'].' <a title="'.$tooltip.'" href="'.qa_path_html('user/'.qa_get_logged_in_handle(), array('tab'=>'history'), qa_opt('site_url'),null,'historyList').'"><span class="qa-history-new-event-count">'.$events.'</span></a>';
+					$this->content['loggedin']['suffix'] = @$this->content['loggedin']['suffix'].' <a title="'.$tooltip.'" href="'.qa_path_html('user/'.qa_get_logged_in_handle(), array('tab'=>'history'), qa_opt('site_url')).'"><span class="qa-history-new-event-count">'.$events.'</span></a>';
 				}
 			}
 		}
@@ -234,13 +234,43 @@ class qa_html_theme_layer extends qa_html_theme_base
 				if($type == 'search') {
 					if((int)$params['start'] != 0)
 						continue;
-					$link = '<a href="'.qa_path_html('search', array('q'=>$params['query'])).'">'.$params['query'].'</a>';
+					$link = '<a href="'.qa_path_html('search', array('q'=>$params['query'])).'">'.qa_html($params['query']).'</a>';
 				}
 				else if(in_array($type, array('u_edit','u_level','u_block','u_unblock'))) {
 					$ohandle = $this->getHandleFromID($params['userid']);
 					$link = '<a href="'.qa_path_html('user/'.$ohandle, null, qa_opt('site_url')).'">'.$ohandle.'</a>';
 				}
 				else($link = '');
+			}
+			else if($type == 'badge_awarded') {
+				 if(!qa_opt('badge_active') || !function_exists('qa_get_badge_type'))
+					continue;
+				if(isset($params['postid'])) {
+					$post = qa_db_read_one_assoc(
+						qa_db_query_sub(
+							'SELECT type,parentid,title FROM ^posts WHERE postid=#',
+							$params['postid']
+						),
+						true
+					);
+					
+					if(strpos($post['type'],'Q') !== 0) {
+						$anchor = qa_anchor((strpos($post['type'],'A') === 0 ?'A':'C'), $params['postid']);
+						$parent = qa_db_read_one_value(
+							qa_db_query_sub(
+								'SELECT title FROM ^posts WHERE postid=#',
+								$post['parentid']
+							),
+							true
+						);
+						$activity_url = qa_path_html(qa_q_request($post['parentid'], $parent), null, qa_opt('site_url'),null,$anchor);
+						$link = '<a href="'.$activity_url.'">'.$parent.'</a>';									
+					}
+					else {
+						$activity_url = qa_path_html(qa_q_request($params['postid'], $post['title']), null, qa_opt('site_url'),null,$anchor);
+						$link = '<a href="'.$activity_url.'">'.$post['title'].'</a>';									
+					}
+				}
 			}
 			else if(strpos($event['event'],'q_') !== 0 && strpos($event['event'],'in_q_') !== 0) { // comment or answer
 				if(!isset($params['parentid'])) {
@@ -294,8 +324,8 @@ class qa_html_theme_layer extends qa_html_theme_base
 			if(qa_opt('user_act_list_shading')) {
 				$days = (qa_opt('db_time')-$time)/60/60/24;
 				
-				$col = round($days/qa_opt('user_act_list_age')*255*3/4);
-				$bkg = 255-round($days/qa_opt('user_act_list_age')*255/4);
+				$col = round($days/qa_opt('user_act_list_age')*255/2);
+				$bkg = 255-round($days/qa_opt('user_act_list_age')*255/8);
 				$bkg = dechex($bkg);
 				$col = dechex($col);
 				if (strlen($col) == 1) $col = '0'.$col;
@@ -318,10 +348,27 @@ class qa_html_theme_layer extends qa_html_theme_base
 				$points = $points*((int)$params['oldvote'] > (int)$params['vote']?-1:1);
 			}
 			
+			$string = qa_opt('user_act_list_'.$type);
+			
+			if($type == 'badge_awarded') {
+				$slug = $params['badge_slug'];
+				$typea = qa_get_badge_type_by_slug($slug);
+				$types = $typea['slug'];
+				$typed = $typea['name'];
+				
+				$badge_name=qa_badge_lang('badges/'.$slug);
+				if(!qa_opt('badge_'.$slug.'_name')) qa_opt('badge_'.$slug.'_name',$badge_name);
+				$var = qa_opt('badge_'.$slug.'_var');
+				$name = qa_opt('badge_'.$slug.'_name');
+				$desc = qa_badge_desc_replace($slug,$var,$name);
+				
+				$string = str_replace('^badge','<span class="badge-'.$types.'" title="'.$desc.' ('.$typed.')">'.qa_html($name).'</span>',$string);
+			}
+			
 			$fields[] = array(
 				'type' => 'static',
 				'label'=> '<div class="qa-history-item-date'.(($time >= $last_visit && strpos($type,'in_') === 0)?' qa-history-item-date-new':'').'"'.(qa_opt('user_act_list_shading')?' style="color:'.$col.';background-color:'.$bkg.'"':'').'>'.$when.'</div>',
-				'value'=> '<table class="qa-history-item-table"><tr><td class="qa-history-item-type-cell"><div class="qa-history-item-type qa-history-item-'.$type.'">'.qa_opt('user_act_list_'.$type).'</div></td><td class="qa-history-item-title-cell"><div class="qa-history-item-title">'.$link.'</div></td class="qa-history-item-points-cell"><td align="right">'.($points?'<div class="qa-history-item-points qa-history-item-points-'.($points<0?'neg">':'pos">+').$points.'</div>':'').'</td></tr></table>',
+				'value'=> '<table class="qa-history-item-table"><tr><td class="qa-history-item-type-cell"><div class="qa-history-item-type qa-history-item-'.$type.'">'.$string.'</div></td><td class="qa-history-item-title-cell"><div class="qa-history-item-title">'.$link.'</div></td class="qa-history-item-points-cell"><td align="right">'.($points?'<div class="qa-history-item-points qa-history-item-points-'.($points<0?'neg">':'pos">+').$points.'</div>':'').'</td></tr></table>',
 			);
 		}		
 		

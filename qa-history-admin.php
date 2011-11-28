@@ -75,6 +75,9 @@ c_post';
     font-weight: bold;
     padding: 3px;
 }
+.qa-history-item-badge_awarded {
+    white-space:nowrap;
+}
 .qa-history-item-title a{
     color: #555555 !important;
     font-weight: bold;
@@ -261,6 +264,9 @@ c_post';
 					return 'searched for:';
 				case 'user_act_list_u_register':
 					return 'registered';
+				
+				case 'user_act_list_badge_awarded':
+					return '^badge badge awarded';
 
 
 
@@ -356,6 +362,8 @@ c_post';
 				'feedback',
 				'search',
 				'u_register',
+				
+				'badge_awarded',
 			);
 
 		//	Process form input
