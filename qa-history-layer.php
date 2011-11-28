@@ -230,6 +230,8 @@ class qa_html_theme_layer extends qa_html_theme_base
 				$params[$parama[0]]=$parama[1];
 			}
 			
+			$link = '';
+			
 			if(in_array($type, $nopost)) {
 				if($type == 'search') {
 					if((int)$params['start'] != 0)
