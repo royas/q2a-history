@@ -377,19 +377,16 @@ c_post';
 					qa_opt('user_act_list_active',false);
 				}
 				else {
-					$table_exists = qa_db_read_one_value(qa_db_query_sub("SHOW TABLES LIKE '^usermeta'"),true);
-					if(!$table_exists) {
-						qa_db_query_sub(
-							'CREATE TABLE IF NOT EXISTS ^usermeta (
-							meta_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-							user_id bigint(20) unsigned NOT NULL,
-							meta_key varchar(255) DEFAULT NULL,
-							meta_value longtext,
-							PRIMARY KEY (meta_id),
-							UNIQUE (user_id,meta_key)
-							) ENGINE=MyISAM  DEFAULT CHARSET=utf8'
-						);		
-					}				
+					qa_db_query_sub(
+						'CREATE TABLE IF NOT EXISTS ^usermeta (
+						meta_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+						user_id bigint(20) unsigned NOT NULL,
+						meta_key varchar(255) DEFAULT NULL,
+						meta_value longtext,
+						PRIMARY KEY (meta_id),
+						UNIQUE (user_id,meta_key)
+						) ENGINE=MyISAM  DEFAULT CHARSET=utf8'
+					);		
 					qa_opt('user_act_list_active',(bool)qa_post_text('user_act_list_active'));
 					qa_opt('user_act_list_replace',(bool)qa_post_text('user_act_list_replace'));
 					

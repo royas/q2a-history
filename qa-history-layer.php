@@ -6,19 +6,16 @@ class qa_html_theme_layer extends qa_html_theme_base
 	function doctype() {
 		if(qa_get_logged_in_userid() && qa_opt('user_act_list_active') && qa_opt('user_act_list_new') && ($this->template != 'user' || qa_get_logged_in_handle() != $this->_user_handle())) {
 
-			$table_exists = qa_db_read_one_value(qa_db_query_sub("SHOW TABLES LIKE '^usermeta'"),true);
-			if(!$table_exists) {
-				qa_db_query_sub(
-					'CREATE TABLE IF NOT EXISTS ^usermeta (
-					meta_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-					user_id bigint(20) unsigned NOT NULL,
-					meta_key varchar(255) DEFAULT NULL,
-					meta_value longtext,
-					PRIMARY KEY (meta_id),
-					UNIQUE (user_id,meta_key)
-					) ENGINE=MyISAM  DEFAULT CHARSET=utf8'
-				);		
-			}
+			qa_db_query_sub(
+				'CREATE TABLE IF NOT EXISTS ^usermeta (
+				meta_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				user_id bigint(20) unsigned NOT NULL,
+				meta_key varchar(255) DEFAULT NULL,
+				meta_value longtext,
+				PRIMARY KEY (meta_id),
+				UNIQUE (user_id,meta_key)
+				) ENGINE=MyISAM  DEFAULT CHARSET=utf8'
+			);		
 
 			$last_visit = qa_db_read_one_value(
 				qa_db_query_sub(
@@ -118,19 +115,16 @@ class qa_html_theme_layer extends qa_html_theme_base
 		
 		if($userid === qa_get_logged_in_userid() && qa_opt('user_act_list_new')) {
 			
-			$table_exists = qa_db_read_one_value(qa_db_query_sub("SHOW TABLES LIKE '^usermeta'"),true);
-			if(!$table_exists) {
-				qa_db_query_sub(
-					'CREATE TABLE IF NOT EXISTS ^usermeta (
-					meta_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-					user_id bigint(20) unsigned NOT NULL,
-					meta_key varchar(255) DEFAULT NULL,
-					meta_value longtext,
-					PRIMARY KEY (meta_id),
-					UNIQUE (user_id,meta_key)
-					) ENGINE=MyISAM  DEFAULT CHARSET=utf8'
-				);		
-			}
+			qa_db_query_sub(
+				'CREATE TABLE IF NOT EXISTS ^usermeta (
+				meta_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				user_id bigint(20) unsigned NOT NULL,
+				meta_key varchar(255) DEFAULT NULL,
+				meta_value longtext,
+				PRIMARY KEY (meta_id),
+				UNIQUE (user_id,meta_key)
+				) ENGINE=MyISAM  DEFAULT CHARSET=utf8'
+			);		
 
 			$last_visit = qa_db_read_one_value(
 				qa_db_query_sub(
