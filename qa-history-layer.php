@@ -239,7 +239,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 				else($link = '');
 			}
 			else if($type == 'badge_awarded') {
-				 if(!qa_opt('badge_active') || !function_exists('qa_get_badge_type'))
+				if(!qa_opt('badge_active') || !function_exists('qa_get_badge_type'))
 					continue;
 				if(isset($params['postid'])) {
 					$post = qa_db_read_one_assoc(
@@ -252,15 +252,24 @@ class qa_html_theme_layer extends qa_html_theme_base
 					
 					if(strpos($post['type'],'Q') !== 0) {
 						$anchor = qa_anchor((strpos($post['type'],'A') === 0 ?'A':'C'), $params['postid']);
-						$parent = qa_db_read_one_value(
+						$parent = qa_db_read_one_assoc(
 							qa_db_query_sub(
-								'SELECT title FROM ^posts WHERE postid=#',
+								'SELECT parentid,type,title,postid FROM ^posts WHERE postid=#',
 								$post['parentid']
 							),
 							true
 						);
-						$activity_url = qa_path_html(qa_q_request($post['parentid'], $parent), null, qa_opt('site_url'),null,$anchor);
-						$link = '<a href="'.$activity_url.'">'.$parent.'</a>';									
+						if($parent['type'] == 'A') {
+							$parent = qa_db_read_one_assoc(
+								qa_db_query_sub(
+									'SELECT title,postid FROM ^posts WHERE postid=#',
+									$parent['parentid']
+								),
+								true
+							);					
+						}						
+						$activity_url = qa_path_html(qa_q_request($parent['postid'], $parent['title']), null, qa_opt('site_url'),null,$anchor);
+						$link = '<a href="'.$activity_url.'">'.$parent['title'].'</a>';									
 					}
 					else {
 						$activity_url = qa_path_html(qa_q_request($params['postid'], $post['title']), null, qa_opt('site_url'),null,$anchor);
