@@ -142,7 +142,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 		else $last_visit = time();
 		
 		$events = qa_db_query_sub(
-			'SELECT event, params, UNIX_TIMESTAMP(datetime) AS datetime FROM ^eventlog WHERE userid = # AND DATE_SUB(CURDATE(),INTERVAL # DAY) <= datetime ORDER BY datetime DESC'.(qa_opt('user_act_list_max')?' LIMIT '.(int)qa_opt('user_act_list_max'):''),
+			'SELECT event, BINARY params as params, UNIX_TIMESTAMP(datetime) AS datetime FROM ^eventlog WHERE userid = # AND DATE_SUB(CURDATE(),INTERVAL # DAY) <= datetime ORDER BY datetime DESC'.(qa_opt('user_act_list_max')?' LIMIT '.(int)qa_opt('user_act_list_max'):''),
 			$userid, qa_opt('user_act_list_age')
 		);
 
@@ -244,7 +244,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 				if(isset($params['postid'])) {
 					$post = qa_db_read_one_assoc(
 						qa_db_query_sub(
-							'SELECT type,parentid,title FROM ^posts WHERE postid=#',
+							'SELECT type,parentid,BINARY title as title FROM ^posts WHERE postid=#',
 							$params['postid']
 						),
 						true
@@ -254,7 +254,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 						$anchor = qa_anchor((strpos($post['type'],'A') === 0 ?'A':'C'), $params['postid']);
 						$parent = qa_db_read_one_assoc(
 							qa_db_query_sub(
-								'SELECT parentid,type,title,postid FROM ^posts WHERE postid=#',
+								'SELECT parentid,type,BINARY title as title,postid FROM ^posts WHERE postid=#',
 								$post['parentid']
 							),
 							true
@@ -262,7 +262,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 						if($parent['type'] == 'A') {
 							$parent = qa_db_read_one_assoc(
 								qa_db_query_sub(
-									'SELECT title,postid FROM ^posts WHERE postid=#',
+									'SELECT BINARY title as title,postid FROM ^posts WHERE postid=#',
 									$parent['parentid']
 								),
 								true
