@@ -92,6 +92,9 @@ c_post';
 .qa-history-item-points-pos {
 	color: Green;
 }
+.qa-history-new-event-link {
+	text-decoration:none;
+}
 .qa-history-new-event-count {
 	background-color: yellow;
 	border: 1px solid #EEEE00;

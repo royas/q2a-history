@@ -49,7 +49,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 						}
 					}
 					
-					$this->content['loggedin']['suffix'] = @$this->content['loggedin']['suffix'].' <a title="'.$tooltip.'" href="'.qa_path_html('user/'.qa_get_logged_in_handle(), array('tab'=>'history'), qa_opt('site_url')).'"><span class="qa-history-new-event-count">'.$events.'</span></a>';
+					$this->content['loggedin']['suffix'] = @$this->content['loggedin']['suffix'].' <a class="qa-history-new-event-link" title="'.$tooltip.'" href="'.qa_path_html('user/'.qa_get_logged_in_handle(), array('tab'=>'history'), qa_opt('site_url')).'"><span class="qa-history-new-event-count">'.$events.'</span></a>';
 				}
 			}
 		}
