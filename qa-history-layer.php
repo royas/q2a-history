@@ -390,8 +390,8 @@ class qa_html_theme_layer extends qa_html_theme_base
 	// grab the handle of the profile you're looking at
 	function _user_handle()
 	{
-		preg_match( '#user/([^/]+)#', $this->request, $matches );
-		return !empty($matches[1]) ? $matches[1] : null;
+		$handle = preg_replace( '#^user/([^/]+)#', "$1", $this->request );
+		return $handle;
 	}
 	function getuserfromhandle($handle) {
 		require_once QA_INCLUDE_DIR.'qa-app-users.php';
