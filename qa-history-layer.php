@@ -411,7 +411,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 			);
 		}
 		if (!isset($userid)) return;
-		return $userid;
+		return (int)$userid;
 	}
 	function getHandleFromID($uid) {
 		require_once QA_INCLUDE_DIR.'qa-app-users.php';
