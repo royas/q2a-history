@@ -113,7 +113,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 		
 		// update last visit
 		
-		if($userid === qa_get_logged_in_userid() && qa_opt('user_act_list_new')) {
+		if((int)$userid === qa_get_logged_in_userid() && qa_opt('user_act_list_new')) {
 			
 			qa_db_query_sub(
 				'CREATE TABLE IF NOT EXISTS ^usermeta (
