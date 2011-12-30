@@ -98,6 +98,7 @@ c_post';
 .qa-history-new-event-count {
 	background-color: yellow;
 	border: 1px solid #EEEE00;
+	color:black;
 	border-radius: 4px 4px 4px 4px;
 	cursor: pointer;
 	font-size: 75%;
