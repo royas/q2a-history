@@ -177,12 +177,20 @@ class qa_html_theme_layer extends qa_html_theme_base
 		$options=qa_get_options($optionnames);
 		$multi = (int)$options['points_multiple'];
 		
-		$option_events['in_q_vote_up'] = (int)$options['points_per_q_voted']*$multi;
-		$option_events['in_q_vote_down'] = (int)$options['points_per_q_voted']*$multi*(-1);
-		$option_events['in_q_vote_nil'] = (int)$options['points_per_q_voted']*$multi;
-		$option_events['in_a_vote_up'] = (int)$options['points_per_a_voted']*$multi;
-		$option_events['in_a_vote_down'] = (int)$options['points_per_a_voted']*$multi*(-1);
-		$option_events['in_a_vote_nil'] = (int)$options['points_per_a_voted']*$multi;
+		// compat fudge
+		$upvote = '';
+		$downvote = '';
+		if($options['points_per_q_voted_up']) {
+			$upvote = '_up';
+			$downvote = '_down';
+		}
+		
+		$option_events['in_q_vote_up'] = (int)$options['points_per_q_voted'.$upvote]*$multi;
+		$option_events['in_q_vote_down'] = (int)$options['points_per_q_voted'.$downvote]*$multi*(-1);
+		//$option_events['in_q_vote_nil'] = (int)$options['points_per_q_voted']*$multi;
+		$option_events['in_a_vote_up'] = (int)$options['points_per_a_voted'.$upvote]*$multi;
+		$option_events['in_a_vote_down'] = (int)$options['points_per_a_voted'.$downvote]*$multi*(-1);
+		//$option_events['in_a_vote_nil'] = (int)$options['points_per_a_voted']*$multi;
 		$option_events['in_a_select'] = (int)$options['points_a_selected']*$multi;
 		$option_events['in_a_unselect'] = (int)$options['points_a_selected']*$multi*(-1);
 		$option_events['q_post'] = (int)$options['points_post_q']*$multi;
