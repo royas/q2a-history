@@ -53,7 +53,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 				}
 			}
 		}
-		if($this->template == 'user' && (qa_get_logged_in_handle() === $this->_user_handle() || qa_opt('user_act_list_show'))) {
+		if(qa_opt('user_act_list_active') && $this->template == 'user' && (qa_get_logged_in_handle() === $this->_user_handle() || qa_opt('user_act_list_show'))) {
 			if(!isset($this->content['navigation']['sub'])) {
 				$this->content['navigation']['sub'] = array(
 					'profile' => array(
@@ -230,7 +230,10 @@ class qa_html_theme_layer extends qa_html_theme_base
 			$paramsa = explode("\t",$event['params']);
 			foreach($paramsa as $param) {
 				$parama = explode('=',$param);
-				$params[$parama[0]]=$parama[1];
+				if(isset($parama[1]))
+					$params[$parama[0]]=$parama[1];
+				else
+					$params[$param]=$param;
 			}
 			
 			$link = '';

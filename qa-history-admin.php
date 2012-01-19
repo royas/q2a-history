@@ -543,6 +543,7 @@ c_post';
 
 			return array(           
 				'ok' => ($ok && !isset($error)) ? $ok : null,
+				'error' => $error,
 					
 				'fields' => $fields,
 				
