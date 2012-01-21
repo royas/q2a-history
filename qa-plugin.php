@@ -9,7 +9,7 @@
 	Plugin Author URI: http://www.question2answer.org/qa/user/NoahY
 	Plugin License: GPLv3
 	Plugin Minimum Question2Answer Version: 1.4
-	Plugin Update Check URI: https://raw.github.com/NoahY/q2a-history/master/qa-plugin.php
+	Plugin Update Check URI: https://github.com/NoahY/q2a-history/raw/master/qa-plugin.php
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
