@@ -373,7 +373,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 				$types = $typea['slug'];
 				$typed = $typea['name'];
 				
-				$badge_name=qa_badge_lang('badges/'.$slug);
+				$badge_name=qa_lang('badges/'.$slug);
 				if(!qa_opt('badge_'.$slug.'_name')) qa_opt('badge_'.$slug.'_name',$badge_name);
 				$var = qa_opt('badge_'.$slug.'_var');
 				$name = qa_opt('badge_'.$slug.'_name');
