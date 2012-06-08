@@ -370,6 +370,8 @@ class qa_html_theme_layer extends qa_html_theme_base
 			if($type == 'badge_awarded') {
 				$slug = $params['badge_slug'];
 				$typea = qa_get_badge_type_by_slug($slug);
+				if(!$typea)
+					continue;
 				$types = $typea['slug'];
 				$typed = $typea['name'];
 				
