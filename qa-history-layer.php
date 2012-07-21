@@ -387,7 +387,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 			$fields[] = array(
 				'type' => 'static',
 				'label'=> '<div class="qa-history-item-date'.(($time >= $last_visit && strpos($type,'in_') === 0)?' qa-history-item-date-new':'').'"'.(qa_opt('user_act_list_shading')?' style="color:'.$col.';background-color:'.$bkg.'"':'').'>'.$when.'</div>',
-				'value'=> '<table class="qa-history-item-table"><tr><td class="qa-history-item-type-cell"><div class="qa-history-item-type qa-history-item-'.$type.'">'.$string.'</div></td><td class="qa-history-item-title-cell"><div class="qa-history-item-title">'.$link.'</div></td class="qa-history-item-points-cell"><td align="right">'.($points?'<div class="qa-history-item-points qa-history-item-points-'.($points<0?'neg">':'pos">+').$points.'</div>':'').'</td></tr></table>',
+				'value'=> '<table class="qa-history-item-table"><tr><td class="qa-history-item-type-cell"><div class="qa-history-item-type qa-history-item-'.$type.'">'.$string.'</div></td><td class="qa-history-item-title-cell"><div class="qa-history-item-title">'.$link.'</div></td class="qa-history-item-points-cell"><td align="right">'.($points?'<div class="qa-history-item-points qa-history-item-points-'.($points<0?'neg">':'pos">+').$points.'</div>':'&nbsp').'</td></tr></table>',
 			);
 		}		
 		
