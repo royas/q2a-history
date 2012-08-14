@@ -181,17 +181,19 @@ class qa_html_theme_layer extends qa_html_theme_base
 		// compat fudge
 		$upvote = '';
 		$downvote = '';
-		if($options['points_per_q_voted_up']) {
+		if(@$options['points_per_q_voted_up']) {
 			$upvote = '_up';
 			$downvote = '_down';
 		}
 		
 		$option_events['in_q_vote_up'] = (int)$options['points_per_q_voted'.$upvote]*$multi;
 		$option_events['in_q_vote_down'] = (int)$options['points_per_q_voted'.$downvote]*$multi*(-1);
-		//$option_events['in_q_vote_nil'] = (int)$options['points_per_q_voted']*$multi;
-		$option_events['in_a_vote_up'] = (int)$options['points_per_a_voted'.$upvote]*$multi;
+		$option_events['in_q_unvote_up'] = (int)$options['points_per_q_voted'.$upvote]*$multi*(-1);
+		$option_events['in_q_unvote_down'] = (int)$options['points_per_q_voted'.$downvote]*$multi;
+		$option_events['in_a_vote_up'] = (int)$options['points_per_a_voted'.$upvote]*$multi*(-1);
 		$option_events['in_a_vote_down'] = (int)$options['points_per_a_voted'.$downvote]*$multi*(-1);
-		//$option_events['in_a_vote_nil'] = (int)$options['points_per_a_voted']*$multi;
+		$option_events['in_a_unvote_up'] = (int)$options['points_per_a_voted'.$upvote]*$multi*(-1);
+		$option_events['in_a_unvote_down'] = (int)$options['points_per_a_voted'.$downvote]*$multi;
 		$option_events['in_a_select'] = (int)$options['points_a_selected']*$multi;
 		$option_events['in_a_unselect'] = (int)$options['points_a_selected']*$multi*(-1);
 		$option_events['q_post'] = (int)$options['points_post_q']*$multi;
@@ -357,13 +359,15 @@ class qa_html_theme_layer extends qa_html_theme_base
 			$when = preg_replace('/([0-9]+)/','<span class="qa-history-item-date-no">$1</span>',$when);
 
 			
-			$points = @$option_events[$type];
-			
-			// special points
-			
-			if(in_array($type,array('in_q_vote_nil','in_a_vote_nil'))) {
-				$points = $points*((int)$params['oldvote'] > (int)$params['vote']?-1:1);
+			if(strpos($type,'_vote_nil') == 4) {
+				if($params['oldvote'] == '1') // unvoting an upvote
+					$points = @$option_events[str_replace('_vote_nil','_unvote_up',$type)];
+				else // unvoting a downvote
+					$points = @$option_events[str_replace('_vote_nil','_unvote_down',$type)];
 			}
+			else
+				$points = @$option_events[$type];
+
 			
 			$string = qa_opt('user_act_list_'.$type);
 			

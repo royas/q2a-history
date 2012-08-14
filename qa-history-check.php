@@ -34,48 +34,6 @@
 				'c_post'
 			);
 			 
-			//$undo = array('a_unselect', 'q_vote_nil', 'a_vote_nil','q_unflag', 'a_unflag', 'c_unflag');
-			
-			/*
-			
-			if(in_array($event, $undo)) {
-				$uid = qa_db_read_one_value(
-					qa_db_query_sub(
-						'SELECT userid FROM ^posts WHERE postid=#',
-						$params['postid']
-					),
-					true
-				);
-				
-				$events = array(
-					'a_unselect' => "'in_a_select'",
-					'q_vote_nil' => "'in_q_vote_up','in_q_vote_down'",
-					'a_vote_nil' => "'in_a_vote_up','in_a_vote_down'",
-					'q_unflag' => "'in_q_flag'",
-					'a_unflag' => "'in_a_flag'",
-					'c_unflag' => "'in_c_flag'"
-				);
-				
-				foreach($events as $out => $in) {
-					if($out == $event) {
-						$eventa = qa_db_read_one_assoc(
-							qa_db_query_sub(
-								'SELECT * FROM ^eventlog WHERE datetime=(SELECT MAX(datetime) FROM ^eventlog AS e2 WHERE event IN ('.$in.') AND params LIKE $ AND userid=#)',
-								'%postid='.$params['postid'].'%',$uid
-							),
-							true
-						);
-						qa_db_query_sub(
-							'DELETE FROM ^eventlog WHERE event=$ AND params=$ AND datetime=$ AND userid=$',
-							$eventa['event'],$eventa['params'],$eventa['datetime'],$eventa['userid']
-						);
-					}
-				}
-
-			}
-			
-			*/
-			
 			if(in_array($event, $twoway)) {
 				
 				if(strpos($event,'u_') === 0) {
