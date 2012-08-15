@@ -190,7 +190,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 		$option_events['in_q_vote_down'] = (int)$options['points_per_q_voted'.$downvote]*$multi*(-1);
 		$option_events['in_q_unvote_up'] = (int)$options['points_per_q_voted'.$upvote]*$multi*(-1);
 		$option_events['in_q_unvote_down'] = (int)$options['points_per_q_voted'.$downvote]*$multi;
-		$option_events['in_a_vote_up'] = (int)$options['points_per_a_voted'.$upvote]*$multi*(-1);
+		$option_events['in_a_vote_up'] = (int)$options['points_per_a_voted'.$upvote]*$multi;
 		$option_events['in_a_vote_down'] = (int)$options['points_per_a_voted'.$downvote]*$multi*(-1);
 		$option_events['in_a_unvote_up'] = (int)$options['points_per_a_voted'.$upvote]*$multi*(-1);
 		$option_events['in_a_unvote_down'] = (int)$options['points_per_a_voted'.$downvote]*$multi;
