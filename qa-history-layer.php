@@ -81,7 +81,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 
 	function head_custom() {
 		if(($this->template == 'user' || qa_opt('user_act_list_new')) && qa_opt('user_act_list_active')) {
-				$this->output('<style>',str_replace('^',QA_HTML_THEME_LAYER_URLTOROOT,qa_opt('user_act_list_css')),'</style>');
+				$this->output('<style type="text/css">',str_replace('^',QA_HTML_THEME_LAYER_URLTOROOT,qa_opt('user_act_list_css')),'</style>');
 		}
 		qa_html_theme_base::head_custom();
 	}
