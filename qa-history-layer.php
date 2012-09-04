@@ -143,7 +143,22 @@ class qa_html_theme_layer extends qa_html_theme_base
 		else $last_visit = time();
 		
 		$events = qa_db_query_sub(
-			'SELECT event, BINARY params as params, UNIX_TIMESTAMP(datetime) AS datetime FROM ^eventlog WHERE userid = # AND DATE_SUB(CURDATE(),INTERVAL # DAY) <= datetime ORDER BY datetime DESC'.(qa_opt('user_act_list_max')?' LIMIT '.(int)qa_opt('user_act_list_max'):''),
+			"SELECT 
+				e.event, 
+				BINARY e.params as params, 
+				UNIX_TIMESTAMP(e.datetime) AS datetime,
+				p.postid AS postid
+			FROM 
+				^eventlog AS e
+			LEFT JOIN
+				^posts AS p
+				ON e.params LIKE CONCAT('%postid=', p.postid, '\t%' ) OR e.params LIKE CONCAT('%postid=', p.postid)
+			WHERE
+				e.userid=#
+				AND
+				DATE_SUB(CURDATE(),INTERVAL # DAY) <= datetime
+			ORDER BY datetime DESC"
+			.(qa_opt('user_act_list_max')?" LIMIT ".(int)qa_opt('user_act_list_max'):""),
 			$userid, qa_opt('user_act_list_age')
 		);
 
@@ -208,6 +223,19 @@ class qa_html_theme_layer extends qa_html_theme_base
 		
 		while ( ($event=qa_db_read_one_assoc($events,true)) !== null ) {
 			$type = $event['event'];
+			
+
+
+			// these calls allow you to deal with deleted events; 
+			// uncomment the first one to skip them
+			// uncomment the second one to build your own routine based on whether they are deleted.
+
+			// if(!in_array($type, $nopost) && $event['postid'] == null)
+			//	continue;
+
+			// $deleted = (!in_array($type, $nopost) && $event['postid'] == null);
+
+
 			
 			// hide / show exceptions
 			
@@ -321,7 +349,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 				$activity_url = qa_path_html(qa_q_request($parent['postid'], $parent['title']), null, qa_opt('site_url'),null,$anchor);
 				$link = '<a href="'.$activity_url.'">'.$parent['title'].'</a>';
 			}
-			else {
+			else { // question
 
 				if(!isset($params['title'])) {
 					$params['title'] = qa_db_read_one_value(
