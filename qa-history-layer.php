@@ -219,25 +219,28 @@ class qa_html_theme_layer extends qa_html_theme_base
 		
 		$events = array();
 		$postids = array();
+		$count = 0;
 		while ( ($event=qa_db_read_one_assoc($event_query,true)) !== null ) {
-			if(preg_match('/postid=([0-9]+)/',$event['params'],$m) == 1) {
+			if(preg_match('/postid=([0-9]+)/',$event['params'],$m) === 1) {
 				$event['postid'] = (int)$m[1];
 				$postids[] = (int)$m[1];
+				$events[$m[1].'_'.$count++] = $event;
 			}
-			$events[$m[1]] = $event;
+			else
+				$events['nopost_'.($count++)] = $event;
 		}
 		
 		// get post info, also makes sure post exists
 		
 		$posts = null;
 		if(!empty($postids)) {
-			$posts = qa_db_read_all_assoc(
+			$post_query = qa_db_read_all_assoc(
 				qa_db_query_sub(
 					'SELECT postid,type,parentid,BINARY title as title FROM ^posts WHERE postid IN ('.implode(',',$postids).')'
 				)
 			);
-			foreach($posts as $post) {
-				$events[(string)$post['postid']]['post'] = $post;
+			foreach($post_query as $post) {
+				$posts[(string)$post['postid']] = $post;
 			}
 		}
 		
@@ -301,8 +304,8 @@ class qa_html_theme_layer extends qa_html_theme_base
 			else if($type == 'badge_awarded') {
 				if(!qa_opt('badge_active') || !function_exists('qa_get_badge_type'))
 					continue;
-				if(isset($event['post'])) {
-					$post = $event['post'];
+				if(isset($params['postid'])) {
+					$post = $posts[$params['postid']];
 					
 					if(strpos($post['type'],'Q') !== 0) {
 						$anchor = qa_anchor((strpos($post['type'],'A') === 0 ?'A':'C'), $params['postid']);
