@@ -142,17 +142,13 @@ class qa_html_theme_layer extends qa_html_theme_base
 		}
 		else $last_visit = time();
 		
-		$events = qa_db_query_sub(
+		$event_query = qa_db_query_sub(
 			"SELECT 
 				e.event, 
 				BINARY e.params as params, 
-				UNIX_TIMESTAMP(e.datetime) AS datetime,
-				p.postid AS postid
+				UNIX_TIMESTAMP(e.datetime) AS datetime
 			FROM 
 				^eventlog AS e
-			LEFT JOIN
-				^posts AS p
-				ON e.params LIKE CONCAT('%postid=', p.postid, '\t%' ) OR e.params LIKE CONCAT('%postid=', p.postid)
 			WHERE
 				e.userid=#
 				AND
@@ -161,6 +157,8 @@ class qa_html_theme_layer extends qa_html_theme_base
 			.(qa_opt('user_act_list_max')?" LIMIT ".(int)qa_opt('user_act_list_max'):""),
 			$userid, qa_opt('user_act_list_age')
 		);
+		
+		error_log(count($event_query));
 
 		// no post
 		
@@ -221,10 +219,32 @@ class qa_html_theme_layer extends qa_html_theme_base
 		
 		$fields = array();
 		
-		while ( ($event=qa_db_read_one_assoc($events,true)) !== null ) {
+		$events = array();
+		$postids = array();
+		while ( ($event=qa_db_read_one_assoc($event_query,true)) !== null ) {
+			if(preg_match('/postid=([0-9]+)/',$event['params'],$m) == 1) {
+				$event['postid'] = (int)$m[1];
+				$postids[] = (int)$m[1];
+			}
+			$events[$m[1]] = $event;
+		}
+		
+		// get post info, also makes sure post exists
+		
+		$posts = null;
+		if(!empty($postids)) {
+			$posts = qa_db_read_all_assoc(
+				qa_db_query_sub(
+					'SELECT postid,type,parentid,BINARY title as title FROM ^posts WHERE postid IN ('.implode(',',$postids).')'
+				)
+			);
+			foreach($posts as $post) {
+				$events[(string)$post['postid']]['post'] = $post;
+			}
+		}
+		
+		foreach($events as $event) {
 			$type = $event['event'];
-			
-
 
 			// these calls allow you to deal with deleted events; 
 			// uncomment the first one to skip them
@@ -283,14 +303,8 @@ class qa_html_theme_layer extends qa_html_theme_base
 			else if($type == 'badge_awarded') {
 				if(!qa_opt('badge_active') || !function_exists('qa_get_badge_type'))
 					continue;
-				if(isset($params['postid'])) {
-					$post = qa_db_read_one_assoc(
-						qa_db_query_sub(
-							'SELECT type,parentid,BINARY title as title FROM ^posts WHERE postid=#',
-							$params['postid']
-						),
-						true
-					);
+				if(isset($event['post'])) {
+					$post = $event['post'];
 					
 					if(strpos($post['type'],'Q') !== 0) {
 						$anchor = qa_anchor((strpos($post['type'],'A') === 0 ?'A':'C'), $params['postid']);
@@ -321,13 +335,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 			}
 			else if(strpos($event['event'],'q_') !== 0 && strpos($event['event'],'in_q_') !== 0) { // comment or answer
 				if(!isset($params['parentid'])) {
-					$params['parentid'] = qa_db_read_one_value(
-						qa_db_query_sub(
-							'SELECT parentid FROM ^posts WHERE postid=#',
-							$params['postid']
-						),
-						true
-					);
+					$params['parentid'] = $event['post']['parentid'];
 				}
 
 				$parent = qa_db_select_with_pending(
@@ -352,13 +360,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 			else { // question
 
 				if(!isset($params['title'])) {
-					$params['title'] = qa_db_read_one_value(
-						qa_db_query_sub(
-							'SELECT BINARY title as title FROM ^posts WHERE postid=#',
-							$params['postid']
-						),
-						true
-					);
+					$params['title'] = $event['post']['title'];
 				}
 				if($params['title'] !== null) {
 					$activity_url = qa_path_html(qa_q_request($params['postid'], $params['title']), null, qa_opt('site_url'));
