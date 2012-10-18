@@ -336,7 +336,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 			}
 			else if(strpos($event['event'],'q_') !== 0 && strpos($event['event'],'in_q_') !== 0) { // comment or answer
 				if(!isset($params['parentid'])) {
-					$params['parentid'] = $event['post']['parentid'];
+					$params['parentid'] = $posts[$params['postid']]['parentid'];
 				}
 
 				$parent = qa_db_select_with_pending(
@@ -361,7 +361,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 			else { // question
 
 				if(!isset($params['title'])) {
-					$params['title'] = $event['post']['title'];
+					$params['title'] = $posts[$params['postid']]['title'];
 				}
 				if($params['title'] !== null) {
 					$activity_url = qa_path_html(qa_q_request($params['postid'], $params['title']), null, qa_opt('site_url'));

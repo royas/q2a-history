@@ -3,7 +3,7 @@
 	Plugin Name: History
 	Plugin URI: https://github.com/NoahY/q2a-history
 	Plugin Description: Adds complete activity history list to user profile
-	Plugin Version: 1.8
+	Plugin Version: 1.9
 	Plugin Date: 2011-10-26
 	Plugin Author: NoahY
 	Plugin Author URI: http://www.question2answer.org/qa/user/NoahY
