@@ -158,8 +158,6 @@ class qa_html_theme_layer extends qa_html_theme_base
 			$userid, qa_opt('user_act_list_age')
 		);
 		
-		error_log(count($event_query));
-
 		// no post
 		
 		$nopost = array(
@@ -328,7 +326,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 						$link = '<a href="'.$activity_url.'">'.$parent['title'].'</a>';									
 					}
 					else {
-						$activity_url = qa_path_html(qa_q_request($params['postid'], $post['title']), null, qa_opt('site_url'),null,$anchor);
+						$activity_url = qa_path_html(qa_q_request($params['postid'], $post['title']), null, qa_opt('site_url'),null,null);
 						$link = '<a href="'.$activity_url.'">'.$post['title'].'</a>';									
 					}
 				}
