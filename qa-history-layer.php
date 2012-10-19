@@ -161,9 +161,6 @@ class qa_html_theme_layer extends qa_html_theme_base
 		// no post
 		
 		$nopost = array(
-			'q_delete',
-			'a_delete',
-			'c_delete',
 			'u_password',
 			'u_reset',
 			'u_save',
@@ -236,7 +233,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 		if(!empty($postids)) {
 			$post_query = qa_db_read_all_assoc(
 				qa_db_query_sub(
-					'SELECT postid,type,parentid,BINARY title as title FROM ^posts WHERE postid IN ('.implode(',',$postids).')'
+					'SELECT postid, type, parentid, BINARY title as title FROM ^posts WHERE postid IN ('.implode(',',$postids).')'
 				)
 			);
 			foreach($post_query as $post) {
@@ -244,19 +241,23 @@ class qa_html_theme_layer extends qa_html_theme_base
 			}
 		}
 		
-		foreach($events as $event) {
+		foreach($events as $postid_string => $event) {
 			$type = $event['event'];
-
+			
+			$postid = preg_replace('/_.*/','',$postid_string);
+			$post = null;
+			$post = @$posts[$postid];
+			
+			
 			// these calls allow you to deal with deleted events; 
 			// uncomment the first one to skip them
 			// uncomment the second one to build your own routine based on whether they are deleted.
 
-			// if(!in_array($type, $nopost) && $event['postid'] == null)
-			//	continue;
+			if(!in_array($type, $nopost) && $post == null)
+				continue;
 
-			// $deleted = (!in_array($type, $nopost) && $event['postid'] == null);
-
-
+			// $deleted = (!in_array($type, $nopost) && $post == null);
+			
 			
 			// hide / show exceptions
 			
@@ -304,8 +305,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 			else if($type == 'badge_awarded') {
 				if(!qa_opt('badge_active') || !function_exists('qa_get_badge_type'))
 					continue;
-				if(isset($params['postid'])) {
-					$post = $posts[$params['postid']];
+				if($post != null) {
 					
 					if(strpos($post['type'],'Q') !== 0) {
 						$anchor = qa_anchor((strpos($post['type'],'A') === 0 ?'A':'C'), $params['postid']);
@@ -334,9 +334,9 @@ class qa_html_theme_layer extends qa_html_theme_base
 					}
 				}
 			}
-			else if(strpos($event['event'],'q_') !== 0 && strpos($event['event'],'in_q_') !== 0) { // comment or answer
+			else if($post != null && strpos($event['event'],'q_') !== 0 && strpos($event['event'],'in_q_') !== 0) { // comment or answer
 				if(!isset($params['parentid'])) {
-					$params['parentid'] = $posts[$params['postid']]['parentid'];
+					$params['parentid'] = $post['parentid'];
 				}
 
 				$parent = qa_db_select_with_pending(
@@ -358,7 +358,7 @@ class qa_html_theme_layer extends qa_html_theme_base
 				$activity_url = qa_path_html(qa_q_request($parent['postid'], $parent['title']), null, qa_opt('site_url'),null,$anchor);
 				$link = '<a href="'.$activity_url.'">'.$parent['title'].'</a>';
 			}
-			else { // question
+			else if($post != null) { // question
 
 				if(!isset($params['title'])) {
 					$params['title'] = $posts[$params['postid']]['title'];
