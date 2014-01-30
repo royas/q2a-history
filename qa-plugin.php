@@ -34,3 +34,4 @@ if ( !defined('QA_VERSION') )
 qa_register_plugin_layer('qa-history-layer.php', 'History Layer');
 qa_register_plugin_module('event', 'qa-history-check.php','history_check','History Check');
 qa_register_plugin_module('module', 'qa-history-admin.php','history_admin','History Admin');
+qa_register_plugin_phrases('qa-history-lang-*.php', 'history');
